@@ -1,0 +1,83 @@
+/*************************
+Test Buttons
+**************************/
+
+button {
+    display: inline-block;
+    float: left;
+    margin-left: 10px;
+    font-size: 30px;
+    font-style: bold;
+    color: red;
+}
+
+#my-buttons {
+    display: block;
+    margin: auto;
+    clear: both;
+    width: 150px;
+}
+
+/*************************
+Board
+**************************/
+
+#my-board {
+    display: block;
+    margin: auto;
+    clear: both;
+}
+
+.board-row {
+    display: block;
+    margin: auto;
+    margin-top: 0;
+    margin-bottom: 0;
+    width: 300px;
+}
+
+.square {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border: 1px black solid;
+}
+
+/*************************
+Messages
+**************************/
+
+#message-player {
+    background-color: #909090;
+    margin: auto;
+}
+
+#message-player h1 {
+    font-size: 40px;
+    width: 300px;
+    margin: auto;
+}
+
+/*************************
+Colors
+**************************/
+
+.bg-white {
+    background-color: white;
+}
+
+.bg-black {
+    background-color: black;
+}
+
+.bg-green {
+    background-color: green;
+}
+
+.font-white {
+    color: white;
+}
+
+.font-black {
+    color: black;
+}
