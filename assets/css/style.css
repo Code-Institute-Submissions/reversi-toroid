@@ -1,21 +1,80 @@
 /*************************
+Header
+**************************/
+
+header {
+    display: block;
+    font-family: Arial, sans-serif;
+    color: blue;
+    font-weight: 900;
+    font-size: 35px;
+    text-align: center;
+    font-style: italic;
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+
+/*************************
+Header
+**************************/
+#myScore {
+    display: block;
+    margin: auto;
+    width: 250px;
+    height: 80px;
+}
+.score {
+    display: inline-block;
+    width: 75px;
+    height: 75px;
+    border: black 1px solid;
+    color: red;
+    font-family: Arrial, sans-serif;
+    font-size: 50px;
+    font-weight: 800;
+    text-align: center;
+}
+
+#player1-score {
+    float: left;
+    background-color: white;
+    margin-left: 10px;
+}
+
+#player2-score {
+    float: right;
+    background-color: black;
+    margin-right: 20px;
+}
+
+/*************************
 Test Buttons
 **************************/
 
-button {
-    display: inline-block;
-    float: left;
-    margin-left: 10px;
-    font-size: 30px;
-    font-style: bold;
-    color: red;
-}
-
-#my-buttons {
+#myButtons {
     display: block;
     margin: auto;
     clear: both;
-    width: 150px;
+    width: 250px;
+}
+
+button {
+    display: inline-block;
+    font-size: 20px;
+    font-style: bold;
+    color: red;
+    width: 110px;
+}
+
+#start-classic {
+    float: left;
+    margin-left: 0px;
+}
+
+#start-toroid {
+    float: right;
+    margin-right: 10px;
 }
 
 /*************************
@@ -33,6 +92,7 @@ Board
     margin: auto;
     margin-top: 0;
     margin-bottom: 0;
+    padding-left: 5px;
     width: 300px;
 }
 
@@ -53,9 +113,11 @@ Messages
 }
 
 #message-player h1 {
-    font-size: 40px;
+    font-size: 25px;
+    font-family: Arial, sans-serif;
     width: 300px;
     margin: auto;
+    padding-left: 10px;
 }
 
 /*************************

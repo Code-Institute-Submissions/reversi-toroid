@@ -14,10 +14,12 @@ $(document).ready(function () {
 
     let currentPlayer = 0; //current player to move: 0 - nobody, 1 - white, 2 - black
     let mapArray = []; //map for the board
+    let scorePlayer1 = 2;
+    let scorePlayer2 = 2;
 
 
     //react to "START GAME" button
-    $("#start-game").click(function () { startGame(); });
+    $("button").click(function () { startGame(); });
 
     //react to click on a square
     $(".square").click(function () {
@@ -30,37 +32,66 @@ $(document).ready(function () {
 
         //check if the clicked square is already of the "clicking" color
         if (mapArray[clickedSquare.y][clickedSquare.x] != 0 || currentPlayer == 0) {
-            alert("NOT ALLOWED!");
+            alert("Click on an EMPTY square!!!");
             return;
         }
         //calculate gain in all 8 possible directions for clickedSquare clicked by currentPlayer
         let possibleGain = calculateGain(clickedSquare, currentPlayer);
-        if (possibleGain.reduce( (a,b) => a + b, 0) == 0) { alert("NOT ALLOWED!"); return; } //if gain is 0 then the move is not allowed
+        if (possibleGain.reduce((a, b) => a + b, 0) == 0) { alert("You MUST reverse AT LEAST 1 opponent square!!!"); return; } //if gain is 0 then the move is not allowed
 
         //update the mapArray
         updateMapArray(clickedSquare, possibleGain, currentPlayer);
 
+        //update score
+        updateScore(possibleGain);
+
         //change color of the clicked square
         updateColors();
+
+        //change color of the clicked square
+        displayScore();
 
         //pass to the opposite player
         updatePlayer();
     });
+
+    //Function to update score
+    function updateScore(possibleGain) {
+        console.log(possibleGain);
+        let totatlGain = possibleGain.reduce((a, b) => a + b, 0);
+        if (currentPlayer == 1) {
+            scorePlayer1 += totatlGain + 1;
+            scorePlayer2 -= totatlGain;
+        }
+        if (currentPlayer == 2) {
+            scorePlayer2 += totatlGain + 1;
+            scorePlayer1 -= totatlGain;
+        }
+    };
 
     //Function to start a new game
     function startGame() {
         mapArray = initializeMap();
         updatePlayer();
         updateColors();
-        $("#start-game").hide();
+        $("header").hide();
+        $("#myScore").show();
+        $("#myButtons").hide();
         $("#message-player").show();
+        displayScore();
     }
+
+    //Function to display current score
+    function displayScore() {
+        $("#player1-score").text(scorePlayer1);
+        $("#player2-score").text(scorePlayer2);
+    };
 
     //Function to pass the move to the opposite player
     function updatePlayer() {
         currentPlayer = currentPlayer % 2 + 1;
         let selector = "#message-player h1";
-        $(selector).html(`Move of Player${currentPlayer}`);
+        $(selector).html(`Move of Player${currentPlayer} (${colors[currentPlayer]})`);
         $(selector).removeClass("font-white");
         $(selector).removeClass("font-black");
         $(selector).addClass("font-" + colors[currentPlayer]);
