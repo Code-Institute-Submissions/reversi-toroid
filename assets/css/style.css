@@ -12,6 +12,7 @@ header {
     font-style: italic;
     padding-top: 15px;
     padding-bottom: 15px;
+    padding-right: 15px;
 }
 
 
@@ -38,13 +39,13 @@ Header
 
 #player1-score {
     float: left;
-    background-color: white;
+    background-color: black;
     margin-left: 10px;
 }
 
 #player2-score {
     float: right;
-    background-color: black;
+    background-color: white;
     margin-right: 20px;
 }
 
