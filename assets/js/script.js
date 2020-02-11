@@ -74,7 +74,7 @@ $(document).ready(function () {
         mapArray = initializeMap();
         updatePlayer();
         updateColors();
-        $("header").hide();
+ //       $("header").hide();
         $("#myScore").show();
         $("#myButtons").hide();
         $("#message-player").show();
