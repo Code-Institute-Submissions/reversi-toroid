@@ -14,11 +14,9 @@ $(document).ready(function () {
         ], //basis for different directions
         colors: ["green", "black", "white"], //colors for players
         boardIsClassic: false, //flag for type of game rules: true - classic game on a square board, false - game on a toroid board
-        player: 0, //current player to move: 0 - nobody, 1 - white, 2 - black
-        score1: 2, //current score of player 1
-        score2: 2, //current score of player 2
-        name1: "Player1", //name of player 1
-        name2: "Player2", //name of player 1
+        player: 0, //current player to move: 0 - nobody, 1 - black, 2 - white
+        score: [0, 2, 2], //[unused, score of player 1, score of player 2]
+        name: ["", "Player1", "Player2"], //[unused, name of player 1, name of player 2]
         nPlayersCanMove: 0, //number of players who can move: 0 - nobody (end of game), 1 - one of the players cannot move, 2 - both can move
         mapCurrent: [], //map for the board: 0 - nobody, 1 - white, 2 - black
         mapPermitted: [], //map for permitted moves: 0 - empty, 1 - permitted, 2 - occupied
@@ -37,6 +35,21 @@ $(document).ready(function () {
         $("header").text("Reversi-on-Toroid");
         status.boardIsClassic = false;
         initializeBoardAndScore(status);
+    });
+
+    //react to clicking the score frame of player 1
+    $(".score-frame").click(function () {
+        let messageBuffer = $("#message-content").html();
+        let elementID = $(this).attr("id");
+        let lastIDSymbol = elementID[elementID.length - 1];
+        let playerNumber = parseInt(lastIDSymbol);
+        $("#message-content").html(`<span>Enter new name for Player 1: </span><input id="new-name" type="text" value="New name" size="11"><button id="name-ok">OK</button>`);
+        $("#name-ok").click(function () {
+            status.name[playerNumber] = $("#new-name").val();
+            displayScore(status);
+            $("#message-content").html(messageBuffer);
+            updateMessage(status);
+        });
     });
 
     //react to click on a square
@@ -168,10 +181,10 @@ function checkIfPlayerCanMove(status, player) {
 
 //Function to display current score
 function displayScore(status) {
-    $("#player1 > .score").text(status.score1);
-    $("#player1 > .name").text(status.name1);
-    $("#player2 > .score").text(status.score2);
-    $("#player2 > .name").text(status.name2);
+    for (let i = 1; i < 3; i++) {
+        $(`#player${i} > .score`).text(status.score[i]);
+        $(`#player${i} > .name`).text(status.name[1]);
+    }
 };
 
 // Function to initialize the board, score, and player message 
@@ -241,6 +254,11 @@ function setNewColor(squareToBeChanged, newColor) {
     $(selector).addClass("bg-" + newColor);
 }
 
+// Function to calculate a coordinate on toroid if the initial coordinate is c0 and the coordinate shift is dC
+function toroidCoordinate(c0, dC) {
+    return (c0 + dC + 8) % 8;
+}
+
 //Function to update colors on the web page using colorPalette and map
 function updateWebPage(status) {
     for (i = 0; i < 8; i++) {
@@ -291,22 +309,22 @@ function updateMapPermitted(status, center) {
     }
 };
 
-// Function to calculate a coordinate on toroid if the initial coordinate is c0 and the coordinate shift is dC
-function toroidCoordinate(c0, dC) {
-    return (c0 + dC + 8) % 8;
+// Function to update the mapPermitted when current player (status.player) clicks on square (clickedSquare.y, clickedSquare.x).
+function updateMessage(status) {
+    selector = "#message-content";
+    $(selector).html(`Move of ${status.name[status.player]} (${status.colors[status.player]})`);
+    $(selector).removeClass("font-white");
+    $(selector).removeClass("font-black");
+    $(selector).addClass("font-" + status.colors[status.player]);
 }
 
 // Function to pass the move to the opposite player
 function updatePlayer(status) {
     let opponentPlayerCanMove = checkIfPlayerCanMove(status, status.player % 2 + 1);
-    let selector ="";
+    let selector = "#message-content";
     if (opponentPlayerCanMove) {
         status.player = status.player % 2 + 1;
-        selector = "#message-section > div";
-        $(selector).html(`Move of Player${status.player} (${status.colors[status.player]})`);
-        $(selector).removeClass("font-white");
-        $(selector).removeClass("font-black");
-        $(selector).addClass("font-" + status.colors[status.player]);
+        updateMessage(status);
     } else {
         let currentPlayerCanMove = checkIfPlayerCanMove(status, (status.player + 1) % 2 + 1);
         if (currentPlayerCanMove) {
@@ -315,8 +333,8 @@ function updatePlayer(status) {
         } else {
             selector = "#message-section > div";
             let winMessage = "DRAW";
-            if (status.score1 > status.score2) { winMessage = `Player1 (${status.colors[status.player]}) WON!!!`; }
-            if (status.score1 < status.score2) { winMessage = `Player2 (${status.colors[status.player]}) WON!!!`; }
+            if (status.score[1] > status.score[2]) { winMessage = `Player1 (${status.colors[status.player]}) WON!!!`; }
+            if (status.score[1] < status.score[2]) { winMessage = `Player2 (${status.colors[status.player]}) WON!!!`; }
             $(selector).html(winMessage);
         }
     }
@@ -326,11 +344,11 @@ function updatePlayer(status) {
 function updateScore(status, center) {
     let changeScoreBy = status.mapGains[center.y][center.x].totalgain;
     if (status.player == 1) {
-        status.score1 += changeScoreBy + 1;
-        status.score2 -= changeScoreBy;
+        status.score[1] += changeScoreBy + 1;
+        status.score[2] -= changeScoreBy;
     }
     if (status.player == 2) {
-        status.score2 += changeScoreBy + 1;
-        status.score1 -= changeScoreBy;
+        status.score[2] += changeScoreBy + 1;
+        status.score[1] -= changeScoreBy;
     }
 };

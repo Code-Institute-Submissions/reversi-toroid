@@ -17,19 +17,19 @@ header {
 
 
 /*************************
-Header
+Score
 **************************/
 #score-display {
     display: block;
     margin: auto;
-    width: 250px;
-    height: 100px;
+    width: 280px;
+    height: 120px;
 }
 
 .score-frame {
     display: block;
-    width: 75px;
-    height: 100px;
+    width: 110px;
+    height: 120px;
     border: black 1px solid;
 }
 
@@ -45,7 +45,7 @@ Header
     margin-right: 20px;
 }
 
-.score-frame > .score {
+.score {
     color: red;
     font-family: Arrial, sans-serif;
     font-size: 50px;
@@ -53,16 +53,29 @@ Header
     text-align: center;
 }
 
-.score-frame > .name {
+.name {
     color: orange;
     font-family: Arrial, sans-serif;
     font-size: 15px;
     font-weight: 800;
     text-align: center;
+    padding-bottom: 3px;
+}
+
+.hint {
+    color: orange;
+    font-family: Arrial, sans-serif;
+    font-size: 8px;
+    font-weight: 100;
+    font-style: italic;
+    text-align: center;
     padding-bottom: 10px;
 }
 
-
+.new-name {
+    display: none;
+    width: 150px;
+}
 
 /*************************
 Test Buttons
@@ -75,7 +88,7 @@ Test Buttons
     width: 250px;
 }
 
-button {
+#start-buttons > button {
     display: inline-block;
     font-size: 20px;
     font-style: bold;
@@ -161,4 +174,16 @@ Colors
 
 .font-black {
     color: black;
+}
+
+/*************************
+Colors
+**************************/
+
+.not-shown {
+    display: none;
+}
+
+.shown {
+    display: block;
 }
