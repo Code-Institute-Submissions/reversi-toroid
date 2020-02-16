@@ -94,16 +94,22 @@
 			<div class="square bg-green x7 y7"></div>
 		</div>
 	</div>
-	<div id="myButtons">
+	<div id="start-buttons">
 		<button id="start-classic">START <strong>CLASSIC</strong> REVERSI GAME</button>
 		<button id="start-toroid">START <strong>TOROID</strong> REVERSI GAME</button>
 	</div>
-	<div id="myScore" style="display: none">
-		<div class="score" id="player1-score"></div>
-		<div class="score" id="player2-score"></div>
+	<div id="score-display" style="display: none">
+		<div id="player1" class="score-frame">
+			<div class="score"></div>
+            <div class="name"></div>
+		</div>
+        <div id="player2" class="score-frame">
+		    <div class="score"></div>
+            <div class="name"></div>
+        </div>
 	</div>
-	<div id="message-player" hidden>
-		<h1>Move of Player1</h1>
+	<div id="message-section" hidden>
+		<div>Move of Player1</div>
 	</div>
 
 

@@ -17,6 +17,8 @@ $(document).ready(function () {
         player: 0, //current player to move: 0 - nobody, 1 - white, 2 - black
         score1: 2, //current score of player 1
         score2: 2, //current score of player 2
+        name1: "Player1", //name of player 1
+        name2: "Player2", //name of player 1
         nPlayersCanMove: 0, //number of players who can move: 0 - nobody (end of game), 1 - one of the players cannot move, 2 - both can move
         mapCurrent: [], //map for the board: 0 - nobody, 1 - white, 2 - black
         mapPermitted: [], //map for permitted moves: 0 - empty, 1 - permitted, 2 - occupied
@@ -166,8 +168,10 @@ function checkIfPlayerCanMove(status, player) {
 
 //Function to display current score
 function displayScore(status) {
-    $("#player1-score").text(status.score1);
-    $("#player2-score").text(status.score2);
+    $("#player1 > .score").text(status.score1);
+    $("#player1 > .name").text(status.name1);
+    $("#player2 > .score").text(status.score2);
+    $("#player2 > .name").text(status.name2);
 };
 
 // Function to initialize the board, score, and player message 
@@ -177,9 +181,9 @@ function initializeBoardAndScore(status) {
     //status.mapGains = initializeMap("gains");
     updatePlayer(status);
     updateWebPage(status);
-    $("#myScore").show();
-    $("#myButtons").hide();
-    $("#message-player").show();
+    $("#score-display").show();
+    $("#start-buttons").hide();
+    $("#message-section").show();
     displayScore(status);
 }
 
@@ -298,7 +302,7 @@ function updatePlayer(status) {
     let selector ="";
     if (opponentPlayerCanMove) {
         status.player = status.player % 2 + 1;
-        selector = "#message-player h1";
+        selector = "#message-section > div";
         $(selector).html(`Move of Player${status.player} (${status.colors[status.player]})`);
         $(selector).removeClass("font-white");
         $(selector).removeClass("font-black");
@@ -309,7 +313,7 @@ function updatePlayer(status) {
             status.player = status.player;
             $(selector).html(`Move of Player${status.player} (${status.colors[status.player]}) again!`);
         } else {
-            selector = "#message-player h1";
+            selector = "#message-section > div";
             let winMessage = "DRAW";
             if (status.score1 > status.score2) { winMessage = `Player1 (${status.colors[status.player]}) WON!!!`; }
             if (status.score1 < status.score2) { winMessage = `Player2 (${status.colors[status.player]}) WON!!!`; }
