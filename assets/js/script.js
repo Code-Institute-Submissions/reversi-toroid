@@ -37,13 +37,13 @@ $(document).ready(function () {
         initializeBoardAndScore(status);
     });
 
-    //react to clicking the score frame of player 1
+    //react to clicking the score frame of player 1 or 2 to change the player's name
     $(".score-frame").click(function () {
         let messageBuffer = $("#message-content").html();
         let elementID = $(this).attr("id");
         let lastIDSymbol = elementID[elementID.length - 1];
         let playerNumber = parseInt(lastIDSymbol);
-        $("#message-content").html(`<span>Enter new name for Player 1: </span><input id="new-name" type="text" value="New name" size="11"><button id="name-ok">OK</button>`);
+        $("#message-content").html(`<span>Enter new name for Player ${playerNumber}: </span><input id="new-name" type="text" value="New name" size="11"><button id="name-ok">OK</button>`);
         $("#name-ok").click(function () {
             status.name[playerNumber] = $("#new-name").val();
             displayScore(status);
@@ -183,7 +183,7 @@ function checkIfPlayerCanMove(status, player) {
 function displayScore(status) {
     for (let i = 1; i < 3; i++) {
         $(`#player${i} > .score`).text(status.score[i]);
-        $(`#player${i} > .name`).text(status.name[1]);
+        $(`#player${i} > .name`).text(status.name[i]);
     }
 };
 
@@ -215,9 +215,9 @@ function initializeMap(typeOfMap) {
     } else {
         elementToAdd = 0;
     }
-    for (i = 0; i < 8; i++) {
+    for (let i = 0; i < 8; i++) {
         let mapRow = [];
-        for (j = 0; j < 8; j++) { mapRow[j] = elementToAdd; }
+        for (let j = 0; j < 8; j++) { mapRow[j] = elementToAdd; }
         output[i] = mapRow;
     }
     if (typeOfMap == "current") {
@@ -235,7 +235,7 @@ function initializeMap(typeOfMap) {
 
 // Function to read a coordinate (x or y) of a square from the square's list of classes (inputClasses).
 function readCoordinate(inputClasses, inputAxis) {
-    for (i of inputClasses) {
+    for (let i of inputClasses) {
         if (i.length === 2 && i[0] === inputAxis) {
             let coordinate = parseInt(i[1]);
             if (Number.isInteger(coordinate) && coordinate > -1 && coordinate < 8) {
@@ -261,8 +261,8 @@ function toroidCoordinate(c0, dC) {
 
 //Function to update colors on the web page using colorPalette and map
 function updateWebPage(status) {
-    for (i = 0; i < 8; i++) {
-        for (j = 0; j < 8; j++) {
+    for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 8; j++) {
             setNewColor({ y: i, x: j }, status.colors[status.mapCurrent[i][j]]);
         }
     }
@@ -273,11 +273,11 @@ function updateMapCurrent(status, center) {
     status.mapCurrent[center.y][center.x] = status.player; //update color of the center square
     let gain = status.mapGains[center.y][center.x].gains; //a temporary short variable for an array with 8 gains in different directions
     //reverse the opponent's squares
-    for (i = 0; i < 8; i++) {
+    for (let i = 0; i < 8; i++) {
         if (gain[i] > 0) {
             let dir = status.basis[i];
             let toBeChanged = { y: center.y, x: center.x };
-            for (j = 0; j < gain[i]; j++) {
+            for (let j = 0; j < gain[i]; j++) {
                 toBeChanged.y = toroidCoordinate(toBeChanged.y, dir.dy);
                 toBeChanged.x = toroidCoordinate(toBeChanged.x, dir.dx);
                 status.mapCurrent[toBeChanged.y][toBeChanged.x] = status.player; //update color of the center square
