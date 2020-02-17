@@ -19,6 +19,8 @@ $(document).ready(function () {
         name: ["", "Player1", "Player2"], //[unused, name of player 1, name of player 2]
         playerIsHuman: [false, true, true], //[unused, player 1 is human (true/false), player 2 is human (true/false)]
         aiLevel: 0, //AI level; must be either 1, or 2, or 3, or 4; level 0 is default for no AI player
+        minAiLevel: 1, //minimal AI level
+        maxAiLevel: 2, //maximal AI level
         nPlayersCanMove: 0, //number of players who can move: 0 - nobody (end of game), 1 - one of the players cannot move, 2 - both can move
         mapCurrent: [], //map for the board: 0 - nobody, 1 - white, 2 - black
         mapPermitted: [], //map for permitted moves: 0 - empty, 1 - permitted, 2 - occupied
@@ -75,34 +77,16 @@ $(document).ready(function () {
         let elementID = $(this).attr("id");
         let lastIDSymbol = elementID[elementID.length - 1];
         let playerNumber = parseInt(lastIDSymbol);
-        let opponentPlayerNumber = playerNumber % 2 + 1;
         $("#message-content").html(`<span>Enter new name for Player ${playerNumber}: </span><input id="new-name" type="text" value="AI (level 1)" size="12"><button id="name-ok">OK</button>`);
+        
         $("#name-ok").click(function () {
             let newName = $("#new-name").val();
-            let newNameStartsWith = newName.slice(0, 10);
-            if (newNameStartsWith == "AI (level ") {
-                if (!status.playerIsHuman[opponentPlayerNumber]) {
-                    alert("At present there MUST be at least 1 HUMAN player");
-                    return;
-                } else {
-                    let newAiLevel = newName.charCodeAt(10) - 48;
-                    if (newAiLevel < 1 || newAiLevel > 4) {
-                        alert("At present minimal AI level is 1 and maximal is 4.");
-                        return;
-                    } else {
-                        status.playerIsHuman[playerNumber] = false;
-                        status.aiLevel = newAiLevel;
-                    }
-                }
-            } else {
-                status.playerIsHuman[playerNumber] = true;
-                status.aiLevel = 0;
-            }
-            status.name[playerNumber] = newName;
+            if (setNewName(status, newName, playerNumber) == -100) { return; };
             displayScore(status);
             $("#message-content").html(messageBuffer);
             updateMessage(status);
         });
+
     });
 
     //react to click on a square
@@ -144,6 +128,36 @@ $(document).ready(function () {
     });
 
 });
+
+//Function to set the new name and playerIsHuman flag (either for an AI player or for a human player); returns -100 if there is a problem
+function setNewName(status, newName, playerNumber) {
+    let opponentPlayerNumber = playerNumber % 2 + 1;
+    let newNameStartsWith = newName.slice(0, 10);
+    let newNameEndsWith = newName.slice(11, 12);
+    if (newNameStartsWith == "AI (level ") {
+        if (newNameEndsWith != ')') {
+            alert("The AI level looks strange. It MUST be not lower than 1 and no higher than 4.");
+            return -100;
+        }
+        if (!status.playerIsHuman[opponentPlayerNumber]) {
+            alert("At present there MUST be at least 1 HUMAN player");
+            return -100;
+        } else {
+            let newAiLevel = newName.charCodeAt(10) - 48;
+            if (newAiLevel < status.minAiLevel || newAiLevel > status.maxAiLevel) {
+                alert(`At present minimal AI level is ${status.minAiLevel} and maximal is ${status.maxAiLevel}. While you try to set it to ${newAiLevel}.`);
+                return -100;
+            } else {
+                status.playerIsHuman[playerNumber] = false;
+                status.aiLevel = newAiLevel;
+            }
+        }
+    } else {
+        status.playerIsHuman[playerNumber] = true;
+        status.aiLevel = 0;
+    }
+    status.name[playerNumber] = newName;
+}
 
 // Function to calculate gain from center of centerColor with (centerX, centerY) in direction (dir.dy, dir.dx) using an array with 8 direction vectors (basis)
 function calculateGain(status, center, playerToTest) {
