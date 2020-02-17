@@ -11,109 +11,121 @@
 </head>
 
 <body>
-	<header>Reversi Game</header>
-	<div id="my-board">
-		<div class="board-row">
-			<div class="square bg-green x0 y0"></div>
-			<div class="square bg-green x1 y0"></div>
-			<div class="square bg-green x2 y0"></div>
-			<div class="square bg-green x3 y0"></div>
-			<div class="square bg-green x4 y0"></div>
-			<div class="square bg-green x5 y0"></div>
-			<div class="square bg-green x6 y0"></div>
-			<div class="square bg-green x7 y0"></div>
-		</div>
-		<div class="board-row">
-			<div class="square bg-green x0 y1"></div>
-			<div class="square bg-green x1 y1"></div>
-			<div class="square bg-green x2 y1"></div>
-			<div class="square bg-green x3 y1"></div>
-			<div class="square bg-green x4 y1"></div>
-			<div class="square bg-green x5 y1"></div>
-			<div class="square bg-green x6 y1"></div>
-			<div class="square bg-green x7 y1"></div>
-		</div>
-		<div class="board-row">
-			<div class="square bg-green x0 y2"></div>
-			<div class="square bg-green x1 y2"></div>
-			<div class="square bg-green x2 y2"></div>
-			<div class="square bg-green x3 y2"></div>
-			<div class="square bg-green x4 y2"></div>
-			<div class="square bg-green x5 y2"></div>
-			<div class="square bg-green x6 y2"></div>
-			<div class="square bg-green x7 y2"></div>
-		</div>
-		<div class="board-row">
-			<div class="square bg-green x0 y3"></div>
-			<div class="square bg-green x1 y3"></div>
-			<div class="square bg-green x2 y3"></div>
-			<div class="square bg-green x3 y3"></div>
-			<div class="square bg-green x4 y3"></div>
-			<div class="square bg-green x5 y3"></div>
-			<div class="square bg-green x6 y3"></div>
-			<div class="square bg-green x7 y3"></div>
-		</div>
-		<div class="board-row">
-			<div class="square bg-green x0 y4"></div>
-			<div class="square bg-green x1 y4"></div>
-			<div class="square bg-green x2 y4"></div>
-			<div class="square bg-green x3 y4"></div>
-			<div class="square bg-green x4 y4"></div>
-			<div class="square bg-green x5 y4"></div>
-			<div class="square bg-green x6 y4"></div>
-			<div class="square bg-green x7 y4"></div>
-		</div>
-		<div class="board-row">
-			<div class="square bg-green x0 y5"></div>
-			<div class="square bg-green x1 y5"></div>
-			<div class="square bg-green x2 y5"></div>
-			<div class="square bg-green x3 y5"></div>
-			<div class="square bg-green x4 y5"></div>
-			<div class="square bg-green x5 y5"></div>
-			<div class="square bg-green x6 y5"></div>
-			<div class="square bg-green x7 y5"></div>
-		</div>
-		<div class="board-row">
-			<div class="square bg-green x0 y6"></div>
-			<div class="square bg-green x1 y6"></div>
-			<div class="square bg-green x2 y6"></div>
-			<div class="square bg-green x3 y6"></div>
-			<div class="square bg-green x4 y6"></div>
-			<div class="square bg-green x5 y6"></div>
-			<div class="square bg-green x6 y6"></div>
-			<div class="square bg-green x7 y6"></div>
-		</div>
-		<div class="board-row">
-			<div class="square bg-green x0 y7"></div>
-			<div class="square bg-green x1 y7"></div>
-			<div class="square bg-green x2 y7"></div>
-			<div class="square bg-green x3 y7"></div>
-			<div class="square bg-green x4 y7"></div>
-			<div class="square bg-green x5 y7"></div>
-			<div class="square bg-green x6 y7"></div>
-			<div class="square bg-green x7 y7"></div>
-		</div>
-	</div>
-	<div id="start-buttons">
-		<button id="start-classic">START <strong>CLASSIC</strong> REVERSI GAME</button>
-		<button id="start-toroid">START <strong>TOROID</strong> REVERSI GAME</button>
-	</div>
-	<div id="score-display" style="display: none">
-		<div id="player1" class="score-frame">
-			<div class="score"></div>
-			<div class="name"></div>
-            <div class="hint">Click to change the name</div>
-		</div>
-		<div id="player2" class="score-frame">
-			<div class="score"></div>
-			<div class="name"></div>
-            <div class="hint">Click to change the name</div>
-		</div>
-	</div>
-	<div id="message-section" hidden>
-		<div id="message-content">Move of Player1</div>
-	</div>
+	<header>
+        <nav>
+            <button id="nav-home">Home</button>
+			<button id="nav-help">Help</button>
+        </nav>
+		<p>Reversi Game</p>
+	</header>
 
+	<section>
+		<div id="my-board">
+			<div class="board-row">
+				<div class="square bg-green x0 y0"></div>
+				<div class="square bg-green x1 y0"></div>
+				<div class="square bg-green x2 y0"></div>
+				<div class="square bg-green x3 y0"></div>
+				<div class="square bg-green x4 y0"></div>
+				<div class="square bg-green x5 y0"></div>
+				<div class="square bg-green x6 y0"></div>
+				<div class="square bg-green x7 y0"></div>
+			</div>
+			<div class="board-row">
+				<div class="square bg-green x0 y1"></div>
+				<div class="square bg-green x1 y1"></div>
+				<div class="square bg-green x2 y1"></div>
+				<div class="square bg-green x3 y1"></div>
+				<div class="square bg-green x4 y1"></div>
+				<div class="square bg-green x5 y1"></div>
+				<div class="square bg-green x6 y1"></div>
+				<div class="square bg-green x7 y1"></div>
+			</div>
+			<div class="board-row">
+				<div class="square bg-green x0 y2"></div>
+				<div class="square bg-green x1 y2"></div>
+				<div class="square bg-green x2 y2"></div>
+				<div class="square bg-green x3 y2"></div>
+				<div class="square bg-green x4 y2"></div>
+				<div class="square bg-green x5 y2"></div>
+				<div class="square bg-green x6 y2"></div>
+				<div class="square bg-green x7 y2"></div>
+			</div>
+			<div class="board-row">
+				<div class="square bg-green x0 y3"></div>
+				<div class="square bg-green x1 y3"></div>
+				<div class="square bg-green x2 y3"></div>
+				<div class="square bg-green x3 y3"></div>
+				<div class="square bg-green x4 y3"></div>
+				<div class="square bg-green x5 y3"></div>
+				<div class="square bg-green x6 y3"></div>
+				<div class="square bg-green x7 y3"></div>
+			</div>
+			<div class="board-row">
+				<div class="square bg-green x0 y4"></div>
+				<div class="square bg-green x1 y4"></div>
+				<div class="square bg-green x2 y4"></div>
+				<div class="square bg-green x3 y4"></div>
+				<div class="square bg-green x4 y4"></div>
+				<div class="square bg-green x5 y4"></div>
+				<div class="square bg-green x6 y4"></div>
+				<div class="square bg-green x7 y4"></div>
+			</div>
+			<div class="board-row">
+				<div class="square bg-green x0 y5"></div>
+				<div class="square bg-green x1 y5"></div>
+				<div class="square bg-green x2 y5"></div>
+				<div class="square bg-green x3 y5"></div>
+				<div class="square bg-green x4 y5"></div>
+				<div class="square bg-green x5 y5"></div>
+				<div class="square bg-green x6 y5"></div>
+				<div class="square bg-green x7 y5"></div>
+			</div>
+			<div class="board-row">
+				<div class="square bg-green x0 y6"></div>
+				<div class="square bg-green x1 y6"></div>
+				<div class="square bg-green x2 y6"></div>
+				<div class="square bg-green x3 y6"></div>
+				<div class="square bg-green x4 y6"></div>
+				<div class="square bg-green x5 y6"></div>
+				<div class="square bg-green x6 y6"></div>
+				<div class="square bg-green x7 y6"></div>
+			</div>
+			<div class="board-row">
+				<div class="square bg-green x0 y7"></div>
+				<div class="square bg-green x1 y7"></div>
+				<div class="square bg-green x2 y7"></div>
+				<div class="square bg-green x3 y7"></div>
+				<div class="square bg-green x4 y7"></div>
+				<div class="square bg-green x5 y7"></div>
+				<div class="square bg-green x6 y7"></div>
+				<div class="square bg-green x7 y7"></div>
+			</div>
+		</div>
+		<div id="start-buttons">
+			<button id="start-classic">START <strong>CLASSIC</strong> REVERSI GAME</button>
+			<button id="start-toroid">START <strong>TOROID</strong> REVERSI GAME</button>
+		</div>
+		<div id="score-display" style="display: none">
+			<div id="player1" class="score-frame">
+				<div class="score"></div>
+				<div class="name"></div>
+				<div class="hint">Click to change the name</div>
+			</div>
+			<div id="player2" class="score-frame">
+				<div class="score"></div>
+				<div class="name"></div>
+				<div class="hint">Click to change the name</div>
+			</div>
+		</div>
+		<div id="message-section" hidden>
+			<div id="message-content">Move of Player1</div>
+		</div>
+	</section>
+
+	<footer>
+		<p>Pavel Zelenin, 2020</p>
+	</footer>
 
 	<script src="https://code.jquery.com/jquery-3.2.1.js"
 		integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous"></script>

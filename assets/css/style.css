@@ -10,9 +10,12 @@ header {
     font-size: 30px;
     text-align: center;
     font-style: italic;
-    padding-top: 15px;
-    padding-bottom: 15px;
     padding-right: 15px;
+    margin: 0px;
+}
+
+header p {
+    margin: 5px;
 }
 
 
@@ -91,7 +94,7 @@ Test Buttons
 #start-buttons > button {
     display: inline-block;
     font-size: 20px;
-    font-style: bold;
+    font-weight: 600;
     color: red;
     width: 110px;
 }
@@ -186,4 +189,51 @@ Colors
 
 .shown {
     display: block;
+}
+
+/*------------------------------------------------- Footer */
+
+footer {
+	position: absolute;
+    bottom: 0;
+    width: 98%; < d
+}
+
+footer > p {
+    margin: auto;
+    padding-bottom: 5px;
+    width: 300px;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    font-style: italic;
+}
+
+
+/*------------------------------------------------- Nav */
+
+nav {
+    display: block;
+    margin: auto;
+    width: 300px;
+    padding-left: 10px;
+    padding-bottom: 30px;
+}
+
+nav > button {
+    display: inline-block;
+    font-size: 15px;
+    font-weight: 200;
+    color: black;
+    width: 110px;
+}
+
+#nav-home {
+    float: left;
+    margin-left: 0px;
+}
+
+#nav-help {
+    float: right;
+    margin-right: 10px;
 }

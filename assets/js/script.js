@@ -23,16 +23,24 @@ $(document).ready(function () {
         mapGains: [], /* map: mapGains[y][x] is possible gain {sum, gains[]} if a square with coordinates (y, x) is clicked; gains[] are gains is 8 directions, sum is the sum of all gains */
     }
 
+    //react to clicking the "Home" button (reset to original view)
+    $("#nav-home").click(function () {
+        $("header > p").text("Reversi Game");
+        $("#score-display").hide();
+        $("#start-buttons").show();
+        $("#message-section").hide();
+    });
+
     //react to choosing the "classic" version of Reversi 
     $("#start-classic").click(function () {
-        $("header").text("Classic Reversi");
+        $("header > p").text("Classic Reversi");
         status.boardIsClassic = true;
         initializeBoardAndScore(status);
     });
 
     //react to choosing the "toroid" version of Reversi 
     $("#start-toroid").click(function () {
-        $("header").text("Reversi-on-Toroid");
+        $("header > p").text("Reversi-on-Toroid");
         status.boardIsClassic = false;
         initializeBoardAndScore(status);
     });
@@ -192,6 +200,7 @@ function initializeBoardAndScore(status) {
     status.mapCurrent = initializeMap("current");
     status.mapPermitted = initializeMap("permitted");
     //status.mapGains = initializeMap("gains");
+    status.player = 2; //pretend that the current player is 2 (the next one must be 1)
     updatePlayer(status);
     updateWebPage(status);
     $("#score-display").show();
