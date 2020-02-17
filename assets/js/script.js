@@ -17,6 +17,8 @@ $(document).ready(function () {
         player: 0, //current player to move: 0 - nobody, 1 - black, 2 - white
         score: [0, 2, 2], //[unused, score of player 1, score of player 2]
         name: ["", "Player1", "Player2"], //[unused, name of player 1, name of player 2]
+        playerIsHuman: [false, true, true], //[unused, player 1 is human (true/false), player 2 is human (true/false)]
+        aiLevel: 0, //AI level; must be either 1, or 2, or 3, or 4; level 0 is default for no AI player
         nPlayersCanMove: 0, //number of players who can move: 0 - nobody (end of game), 1 - one of the players cannot move, 2 - both can move
         mapCurrent: [], //map for the board: 0 - nobody, 1 - white, 2 - black
         mapPermitted: [], //map for permitted moves: 0 - empty, 1 - permitted, 2 - occupied
@@ -73,9 +75,30 @@ $(document).ready(function () {
         let elementID = $(this).attr("id");
         let lastIDSymbol = elementID[elementID.length - 1];
         let playerNumber = parseInt(lastIDSymbol);
-        $("#message-content").html(`<span>Enter new name for Player ${playerNumber}: </span><input id="new-name" type="text" value="AI (level 0)" size="12"><button id="name-ok">OK</button>`);
+        let opponentPlayerNumber = playerNumber % 2 + 1;
+        $("#message-content").html(`<span>Enter new name for Player ${playerNumber}: </span><input id="new-name" type="text" value="AI (level 1)" size="12"><button id="name-ok">OK</button>`);
         $("#name-ok").click(function () {
-            status.name[playerNumber] = $("#new-name").val();
+            let newName = $("#new-name").val();
+            let newNameStartsWith = newName.slice(0, 10);
+            if (newNameStartsWith == "AI (level ") {
+                if (!status.playerIsHuman[opponentPlayerNumber]) {
+                    alert("At present there MUST be at least 1 HUMAN player");
+                    return;
+                } else {
+                    let newAiLevel = newName.charCodeAt(10) - 48;
+                    if (newAiLevel < 1 || newAiLevel > 4) {
+                        alert("At present minimal AI level is 1 and maximal is 4.");
+                        return;
+                    } else {
+                        status.playerIsHuman[playerNumber] = false;
+                        status.aiLevel = newAiLevel;
+                    }
+                }
+            } else {
+                status.playerIsHuman[playerNumber] = true;
+                status.aiLevel = 0;
+            }
+            status.name[playerNumber] = newName;
             displayScore(status);
             $("#message-content").html(messageBuffer);
             updateMessage(status);
