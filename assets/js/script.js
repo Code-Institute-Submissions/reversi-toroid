@@ -25,10 +25,32 @@ $(document).ready(function () {
 
     //react to clicking the "Home" button (reset to original view)
     $("#nav-home").click(function () {
+        for (let i = 0; i < 8; i++) { for (let j = 0; j < 8; j++) { status.mapCurrent[i][j] = 0; } } //set all squares to unoccupied (=0)
+        updateWebPage(status); //display the reset board
         $("header > p").text("Reversi Game");
         $("#score-display").hide();
         $("#start-buttons").show();
         $("#message-section").hide();
+    });
+
+    //react to clicking the "Home" button (reset to original view)
+    $("#nav-help").click(function () {
+        alert(
+            "This game is a slightly modified game of Reversi ( https://en.wikipedia.org/wiki/Reversi ).\n" +
+            'You can play either “Classic Reversi” or “Reversi-on-Toroid”.\n\n' +
+            '“CLASSIC” RULES:\n' +
+            "1) The BLACK player moves first. BLACK must click a square on the board, so that there exists at least one straight (horizontal, vertical, or diagonal) " +
+            "occupied line between the new BLACK square and another BLACK square, with one or more contiguous WHITE squares between them.\n" +
+            "2) After clicking the square, BLACK flips/captures (makes BLACK) all WHITE squares lying on a straight line between the new square " +
+            "and any old BLACK squares. Thus, a valid move is one where at least one square is reversed.\n" +
+            "3) Now WHITE plays. WHITE clicks an empty (GREEN) square making it WHITE, causing BLACK squares to flip.\n" +
+            "4) Players take alternate turns. If one player cannot make a valid move, play passes back to the other player.\n" +
+            "5) The game ends when neither player can legally click any of the remaining squares.\n" +
+            '“REVERSI-ON-TOROID” RULES:\n' +
+            "All rules are the same as in “Classic” but the board is treated as a toroid:\n" +
+            "1) The rightmost vertical is considered the left neighbor of the rightmost vertical.\n" +
+            "2) The top horizontal is considered the bottom neighbor of the bottom horizontal.\n"
+        );
     });
 
     //react to choosing the "classic" version of Reversi 
@@ -51,7 +73,7 @@ $(document).ready(function () {
         let elementID = $(this).attr("id");
         let lastIDSymbol = elementID[elementID.length - 1];
         let playerNumber = parseInt(lastIDSymbol);
-        $("#message-content").html(`<span>Enter new name for Player ${playerNumber}: </span><input id="new-name" type="text" value="New name" size="11"><button id="name-ok">OK</button>`);
+        $("#message-content").html(`<span>Enter new name for Player ${playerNumber}: </span><input id="new-name" type="text" value="AI (level 0)" size="12"><button id="name-ok">OK</button>`);
         $("#name-ok").click(function () {
             status.name[playerNumber] = $("#new-name").val();
             displayScore(status);
@@ -200,6 +222,8 @@ function initializeBoardAndScore(status) {
     status.mapCurrent = initializeMap("current");
     status.mapPermitted = initializeMap("permitted");
     //status.mapGains = initializeMap("gains");
+    status.score[1] = 2;
+    status.score[2] = 2;
     status.player = 2; //pretend that the current player is 2 (the next one must be 1)
     updatePlayer(status);
     updateWebPage(status);
