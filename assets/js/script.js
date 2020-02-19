@@ -27,8 +27,8 @@ $(document).ready(function () {
         individualCalculatedGains: [], // buffer array for individual potentintial gains in 8 directions obtained if a particular square is clicked
     }
 
-    // React to clicking the "Home" button (reset to original view).
-    $("#nav-home").click(function () {
+    // React to clicking the "Restart" button (reset to original view).
+    $("#nav-restart").click(function () {
         for (let i = 0; i < 8; i++) { for (let j = 0; j < 8; j++) { status.mapCurrent[i][j] = 0; } } //set all squares to unoccupied (=0)
         updateBoardDisplay(status); // Update colors on thre board according to the reset state.
         $("header > p").text("Reversi Game");
@@ -37,7 +37,7 @@ $(document).ready(function () {
         $("#message-section").hide();
     });
 
-    // React to clicking the "Home" button (reset to original view).
+    // React to clicking the "Help" button (reset to original view).
     $("#nav-help").click(function () {
         alert(
             "This game is a slightly modified game of Reversi ( https://en.wikipedia.org/wiki/Reversi ).\n" +
@@ -77,7 +77,7 @@ $(document).ready(function () {
         let elementID = $(this).attr("id");
         let lastIDSymbol = elementID[elementID.length - 1];
         let playerNumber = parseInt(lastIDSymbol);
-        $("#message-content").html(`<span>Enter new name for Player ${playerNumber}: </span><input id="new-name" type="text" value="AI (level 1)" size="12"><button id="name-ok">OK</button>`);
+        $("#message-content").html(`<span>Enter new name for Player ${playerNumber}: </span><input id="new-name" type="text" value="AI (level 2)" size="12"><button id="name-ok">OK</button>`);
 
         // Save the new name and restore current message
         $("#name-ok").click(function () {

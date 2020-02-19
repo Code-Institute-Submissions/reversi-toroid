@@ -4,24 +4,120 @@ Header
 
 header {
     display: block;
+    padding-right: 15px;
+    margin: 0px;
+}
+
+header p {
     font-family: Arial, sans-serif;
     color: blue;
     font-weight: 900;
     font-size: 30px;
     text-align: center;
     font-style: italic;
-    padding-right: 15px;
-    margin: 0px;
+    margin: 5px;
 }
 
-header p {
-    margin: 5px;
+nav {
+    display: block;
+    margin: auto;
+    width: 300px;
+    padding-left: 10px;
+    padding-bottom: 30px;
+}
+
+nav > button {
+    display: inline-block;
+    font-size: 15px;
+    font-weight: 200;
+    color: black;
+    width: 110px;
+}
+
+#nav-restart {
+    float: left;
+    margin-left: 0px;
+}
+
+#nav-help {
+    float: right;
+    margin-right: 10px;
+}
+
+
+/*************************
+Board
+**************************/
+
+#my-board {
+    display: block;
+    margin: auto;
+    clear: both;
+}
+
+.board-row {
+    display: block;
+    margin: auto;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 5px;
+    width: 300px;
+}
+
+.square {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border: 1px black solid;
+}
+
+.bg-white {
+    background-color: white;
+}
+
+.bg-black {
+    background-color: black;
+}
+
+.bg-green {
+    background-color: green;
+}
+
+
+/*************************
+Start Buttons
+**************************/
+
+#start-buttons {
+    display: block;
+    margin: auto;
+    clear: both;
+    width: 250px;
+}
+
+#start-buttons > button {
+    display: inline-block;
+    font-size: 20px;
+    font-weight: 600;
+    color: red;
+    width: 110px;
+}
+
+#start-classic {
+    float: left;
+    margin-left: 0px;
+}
+
+#start-toroid {
+    float: right;
+    margin-right: 10px;
 }
 
 
 /*************************
 Score
 **************************/
+
 #score-display {
     display: block;
     margin: auto;
@@ -75,65 +171,6 @@ Score
     padding-bottom: 10px;
 }
 
-.new-name {
-    display: none;
-    width: 150px;
-}
-
-/*************************
-Test Buttons
-**************************/
-
-#start-buttons {
-    display: block;
-    margin: auto;
-    clear: both;
-    width: 250px;
-}
-
-#start-buttons > button {
-    display: inline-block;
-    font-size: 20px;
-    font-weight: 600;
-    color: red;
-    width: 110px;
-}
-
-#start-classic {
-    float: left;
-    margin-left: 0px;
-}
-
-#start-toroid {
-    float: right;
-    margin-right: 10px;
-}
-
-/*************************
-Board
-**************************/
-
-#my-board {
-    display: block;
-    margin: auto;
-    clear: both;
-}
-
-.board-row {
-    display: block;
-    margin: auto;
-    margin-top: 0;
-    margin-bottom: 0;
-    padding-left: 5px;
-    width: 300px;
-}
-
-.square {
-    display: inline-block;
-    width: 30px;
-    height: 30px;
-    border: 1px black solid;
-}
 
 /*************************
 Messages
@@ -155,43 +192,14 @@ Messages
     text-align: center;
 }
 
-/*************************
-Colors
-**************************/
-
-.bg-white {
-    background-color: white;
+#message-content {
+    padding: 5px;
 }
 
-.bg-black {
-    background-color: black;
-}
-
-.bg-green {
-    background-color: green;
-}
-
-.font-white {
-    color: white;
-}
-
-.font-black {
-    color: black;
-}
 
 /*************************
-Colors
+Footer
 **************************/
-
-.not-shown {
-    display: none;
-}
-
-.shown {
-    display: block;
-}
-
-/*------------------------------------------------- Footer */
 
 footer {
 	position: absolute;
@@ -207,33 +215,4 @@ footer > p {
     font-family: Arial, sans-serif;
     font-size: 12px;
     font-style: italic;
-}
-
-
-/*------------------------------------------------- Nav */
-
-nav {
-    display: block;
-    margin: auto;
-    width: 300px;
-    padding-left: 10px;
-    padding-bottom: 30px;
-}
-
-nav > button {
-    display: inline-block;
-    font-size: 15px;
-    font-weight: 200;
-    color: black;
-    width: 110px;
-}
-
-#nav-home {
-    float: left;
-    margin-left: 0px;
-}
-
-#nav-help {
-    float: right;
-    margin-right: 10px;
 }
