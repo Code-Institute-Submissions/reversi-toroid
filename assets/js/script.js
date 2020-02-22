@@ -28,17 +28,17 @@ $(document).ready(function () {
     }
 
     // React to clicking the "Restart" button (reset to original view).
-    $("#nav-restart").click(function () {
+    $("#button-restart").click(function () {
         for (let i = 0; i < 8; i++) { for (let j = 0; j < 8; j++) { status.mapCurrent[i][j] = 0; } } //set all squares to unoccupied (=0)
         updateBoardDisplay(status); // Update colors on thre board according to the reset state.
         $("header > p").text("Reversi Game");
         $("#score-display").hide();
-        $("#start-buttons").show();
+        $("#start-buttons-container").show();
         $("#message-section").hide();
     });
 
     // React to clicking the "Help" button (reset to original view).
-    $("#nav-help").click(function () {
+    $("#button-help").click(function () {
         alert(
             "This game is a slightly modified game of Reversi ( https://en.wikipedia.org/wiki/Reversi ).\n" +
             'You can play either “Classic Reversi” or “Reversi-on-Toroid”.\n\n' +
@@ -74,9 +74,9 @@ $(document).ready(function () {
     // React to clicking the score frame of player 1 or 2 to change the player's name.
     $(".score-frame").click(function () {
         let messageBuffer = $("#message-content").html(); // Save current message to restore it after setting a new name.
-        let elementID = $(this).attr("id");
-        let lastIDSymbol = elementID[elementID.length - 1];
-        let playerNumber = parseInt(lastIDSymbol);
+        let elementId = $(this).attr("id");
+        let lastIdSymbol = elementId[elementId.length - 1];
+        let playerNumber = parseInt(lastIdSymbol);
         $("#message-content").html(`<span>Enter new name for Player ${playerNumber}: </span><input id="new-name" type="text" value="AI (level 2)" size="12"><button id="name-ok">OK</button>`);
 
         // Save the new name and restore current message
@@ -116,7 +116,7 @@ $(document).ready(function () {
             alert("Not a valid move! You MUST capture/flip AT LEAST 1 opponent square!!!"); // ... if not, show an alert and do not react.
             return;
         }
-        
+
         updateMapCurrent(status, clickedSquare); // Update "status.mapCurrent".
         updateMapPermitted(status, clickedSquare);  // Update "status.mapPermitted".
         updateBoardDisplay(status); // Update colors on the board according to the move.
@@ -131,8 +131,8 @@ $(document).ready(function () {
 
 
 /* Function to calculate potential gain if "playerToTest" clicks a square "center".
-    It saves gains in individual 8 directions in "status.individualCalculatedGains", and the total gain in "status.totalCalculatedGain".
-    The function returns the total gain. */
+ * It saves gains in individual 8 directions in "status.individualCalculatedGains", and the total gain in "status.totalCalculatedGain".
+ * The function returns the total gain. */
 function calculateGain(status, center, playerToTest) {
     let potentialGains = status.boardIsClassic ? calculateGainClassic(status, center, playerToTest) : calculateGainToroid(status, center, playerToTest);
     status.individualCalculatedGains = potentialGains;
@@ -232,8 +232,9 @@ function initializeBoardAndScore(status) {
     status.player = 2; // Pretend that the current player is 2 (the next one must be 1).
     updatePlayer(status);
     updateBoardDisplay(status);
+    $("#game-board").show();
     $("#score-display").show();
-    $("#start-buttons").hide();
+    $("#start-buttons-container").hide();
     $("#message-section").show();
     displayScore(status);
 }
@@ -370,7 +371,7 @@ function toroidCoordinate(c0, dC) {
 function updateMapCurrent(status, center) {
     status.mapCurrent[center.y][center.x] = status.player; //update color of the center square
     let gain = status.individualCalculatedGains; //a temporary short variable for an array with 8 gains in different directions
-    
+
     //reverse the opponent's squares
     for (let i = 0; i < 8; i++) {
         if (gain[i] > 0) {
@@ -444,7 +445,7 @@ function updatePlayer(status) {
 // Function updates the score.
 function updateScore(status, center) {
     let changeScoreBy = status.totalCalculatedGain;
-        if (status.player == 1) {
+    if (status.player == 1) {
         status.score[1] += changeScoreBy + 1;
         status.score[2] -= changeScoreBy;
     }

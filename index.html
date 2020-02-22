@@ -12,15 +12,15 @@
 
 <body>
 	<header>
-        <nav>
-            <button id="nav-restart">Restart</button>
-			<button id="nav-help">Help</button>
-        </nav>
+        <div id="menu-container">
+            <button id="button-restart">Restart</button>
+			<button id="button-help">Help</button>
+        </div>
 		<p>Reversi Game</p>
 	</header>
 
 	<section>
-		<div id="my-board">
+		<div id="game-board">
 			<div class="board-row">
 				<div class="square bg-green x0 y0"></div>
 				<div class="square bg-green x1 y0"></div>
@@ -102,7 +102,7 @@
 				<div class="square bg-green x7 y7"></div>
 			</div>
 		</div>
-		<div id="start-buttons">
+		<div id="start-buttons-container">
 			<button id="start-classic">START <strong>CLASSIC</strong> REVERSI GAME</button>
 			<button id="start-toroid">START <strong>TOROID</strong> REVERSI GAME</button>
 		</div>

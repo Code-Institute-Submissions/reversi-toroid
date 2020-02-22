@@ -5,7 +5,7 @@ Header
 header {
     display: block;
     padding-right: 15px;
-    margin: 0px;
+    margin: 0;
 }
 
 header p {
@@ -18,7 +18,7 @@ header p {
     margin: 5px;
 }
 
-nav {
+#menu-container {
     display: block;
     margin: auto;
     width: 300px;
@@ -26,20 +26,20 @@ nav {
     padding-bottom: 30px;
 }
 
-nav > button {
+#menu-container > button {
     display: inline-block;
-    font-size: 15px;
-    font-weight: 200;
+    font-size: 25px;
+    font-weight: 300;
     color: black;
     width: 110px;
 }
 
-#nav-restart {
+#button-restart {
     float: left;
-    margin-left: 0px;
+    margin-left: 0;
 }
 
-#nav-help {
+#button-help {
     float: right;
     margin-right: 10px;
 }
@@ -49,8 +49,8 @@ nav > button {
 Board
 **************************/
 
-#my-board {
-    display: block;
+#game-board {
+    display: none;
     margin: auto;
     clear: both;
 }
@@ -88,14 +88,14 @@ Board
 Start Buttons
 **************************/
 
-#start-buttons {
+#start-buttons-container {
     display: block;
     margin: auto;
     clear: both;
     width: 250px;
 }
 
-#start-buttons > button {
+#start-buttons-container > button {
     display: inline-block;
     font-size: 20px;
     font-weight: 600;
@@ -105,7 +105,7 @@ Start Buttons
 
 #start-classic {
     float: left;
-    margin-left: 0px;
+    margin-left: 0;
 }
 
 #start-toroid {
