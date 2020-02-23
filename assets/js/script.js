@@ -1,29 +1,71 @@
-    // The main data object with constants and main variables.
-    let status = {
-        boardIsClassic: false, //flag for type of game rules: true - classic game on a square board, false - game on a toroid board
-        playerIsHuman: [false, true, true], //[unused, player 1 is human (true/false), player 2 is human (true/false)]
-        basis: [
-            { dy: -1, dx: 0 },
-            { dy: -1, dx: 1 },
-            { dy: 0, dx: 1 },
-            { dy: 1, dx: 1 },
-            { dy: 1, dx: 0 },
-            { dy: 1, dx: -1 },
-            { dy: 0, dx: -1 },
-            { dy: -1, dx: -1 },
-        ], //basis for 8 different directions
-        colors: ["green", "black", "white"], //colors for players        
-        player: 0, //current player to move: 0 - nobody, 1 - black, 2 - white
-        score: [0, 2, 2], //[unused, score of player 1, score of player 2]
-        name: ["", "Player1", "Player2"], //[unused, name of player 1, name of player 2]
-        aiLevel: 0, //AI level; must be either 1, or 2, or 3, or 4; level 0 is default for no AI player
-        minAiLevel: 1, //minimal AI level
-        maxAiLevel: 2, //maximal AI level
-        mapCurrent: [], //map for the board: 0 - nobody, 1 - white, 2 - black
-        mapPermitted: [], //map for permitted moves: 0 - empty, 1 - permitted, 2 - occupied
-        totalCalculatedGain: 0, // buffer variable for total potentintial gain obtained if a particular square is clicked
-        individualCalculatedGains: [], // buffer array for individual potentintial gains in 8 directions obtained if a particular square is clicked
-    }
+const basis = [
+    { dy: -1, dx: 0 },
+    { dy: -1, dx: 1 },
+    { dy: 0, dx: 1 },
+    { dy: 1, dx: 1 },
+    { dy: 1, dx: 0 },
+    { dy: 1, dx: -1 },
+    { dy: 0, dx: -1 },
+    { dy: -1, dx: -1 },
+]; //basis for testeing possible gains in 8 different directions (N, NE, E, SE, S, SW, W, NW)
+
+const playerColor = ["green", "black", "white"]; //colors for players: "green" - unoccupied, "black" - player 1, "white" - player 2
+
+const aiLevel = {
+    MIN: 1, //minimal AI level
+    MAX: 2, //maximal AI level
+}
+
+// The main data object with constants and main variables.
+let status = {
+    boardIsClassic: false, //flag for type of game rules: true - classic game on a square board, false - game on a toroid board
+    playerIsHuman: [false, true, true], //[unused, player 1 is human (true/false), player 2 is human (true/false)]
+    name: ["", "Player1", "Player2"], //[unused, name of player 1, name of player 2]
+    score: [0, 2, 2], //[unused, score of player 1, score of player 2]
+    
+    player: 0, //current player to move: 0 - nobody, 1 - black, 2 - white
+    aiPlayerLevel: 0, //AI level; must be either 1, or 2, or 3, or 4; level 0 is default for no AI player
+    mapCurrent: [], //map for the board: 0 - nobody, 1 - white, 2 - black
+    mapPermitted: [], //map for permitted moves: 0 - empty, 1 - permitted, 2 - occupied
+    totalCalculatedGain: 0, // buffer variable for total potentintial gain obtained if a particular square is clicked
+    individualCalculatedGains: [], // buffer array for individual potentintial gains in 8 directions obtained if a particular square is clicked
+}
+
+
+let gameBoard = {
+
+}
+
+let scoreBoard = {
+    update: function (score, name) { // Function displays the current score.
+        for (let i = 1; i < 3; i++) {
+            $(`#player${i} > .score`).text(score[i]);
+            $(`#player${i} > .name`).text(name[i]);
+        }
+    },
+}
+
+let message = {
+    html: "#message-content", //selector for the message section
+
+    update: function () { // Function updates the message when current player (status.player) clicks on square, or a name is changed, or the game is over.
+        $(this.html).html(`Move of ${status.name[status.player]} (${playerColor[status.player]})`);
+        $(this.html).removeClass("font-white");
+        $(this.html).removeClass("font-black");
+        $(this.html).addClass("font-" + playerColor[status.player]);
+    },
+
+    moveAgain: function (player) {
+        $(this.html).html(`Move of Player${player} (${playerColor[player]}) again!`);
+    },
+
+    gameResult: function () {
+        let winMessage = "DRAW";
+        if (status.score[1] > status.score[2]) { winMessage = `${status.name[1]} (${playerColor[1]}) WON!!!`; }
+        if (status.score[1] < status.score[2]) { winMessage = `${status.name[2]} (${playerColor[2]}) WON!!!`; }
+        $(message.html).html(winMessage);
+    },
+}
 
 
 $(document).ready(function () {
@@ -51,28 +93,7 @@ $(document).ready(function () {
     });
 
     // React to clicking the score frame of player 1 or 2 to change the player's name.
-    $(".score-frame").click(function () {
-        let messageBuffer = $("#message-content").html(); // Save current message to restore it after setting a new name.
-        let elementId = $(this).attr("id");
-        let lastIdSymbol = elementId[elementId.length - 1];
-        let playerNumber = parseInt(lastIdSymbol);
-        $("#message-content").html(`<span>Enter new name for Player ${playerNumber}: </span><input id="new-name" type="text" value="AI (level 2)" size="12"><button id="name-ok">OK</button>`);
-
-        // Save the new name and restore current message
-        $("#name-ok").click(function () {
-            let newName = $("#new-name").val();
-            if (setNewName(newName, playerNumber) == -100) { return; }; // If something went wrong, exit the function without doing anything.
-            displayScore();
-            $("#message-content").html(messageBuffer);
-            updateMessage();
-            // If the name of the current player is changed then pretend that the current is opponent and force update the current player (to make it move). 
-            if (playerNumber == status.player) {
-                status.player = status.player % 2 + 1;
-                updatePlayer();
-            }
-        });
-
-    });
+    $(".score-frame").click(function () { chooseNewName(this); });
 
     // React to click on a square (a human move).
     $(".square").click(function () {
@@ -100,8 +121,8 @@ $(document).ready(function () {
         updateMapPermitted(clickedSquare);  // Update "status.mapPermitted".
         updateBoardDisplay(); // Update colors on the board according to the move.
 
-        updateScore(clickedSquare); // Update score.
-        displayScore(); // Display the current score.
+        updateScore(); // Update score.
+        scoreBoard.update(status.score, status.name); // Display the current score.
 
         updatePlayer(); // Pass move to the opposite player.
     });
@@ -123,7 +144,7 @@ function calculateGain(center, playerToTest) {
 function calculateGainClassic(center, playerToTest) {
     let output = [];
     for (let i = 0; i < 8; i++) {
-        let dir = status.basis[i];
+        let dir = basis[i];
         let toBeTested = { y: center.y, x: center.x }; // Initialize the square to be tested for 1 particular direction.
         for (let j = 1; j < 8; j++) {
             toBeTested.y += dir.dy;
@@ -157,7 +178,7 @@ function calculateGainClassic(center, playerToTest) {
 function calculateGainToroid(center, playerToTest) {
     let output = [];
     for (let i = 0; i < 8; i++) {
-        let dir = status.basis[i];
+        let dir = basis[i];
         let toBeTested = { y: center.y, x: center.x };
         for (let j = 1; j < 8; j++) {
             toBeTested.y = toroidCoordinate(toBeTested.y, dir.dy);
@@ -177,7 +198,7 @@ function calculateGainToroid(center, playerToTest) {
     return output;
 }
 
-//Function checks if "player" can move.
+// Function checks if "player" can move.
 function checkIfPlayerCanMove(player) {
     let reply = false;
     for (let i = 0; i < 8; i++) {
@@ -194,13 +215,33 @@ function checkIfPlayerCanMove(player) {
     return reply;
 }
 
-// Function displays the current score.
-function displayScore() {
-    for (let i = 1; i < 3; i++) {
-        $(`#player${i} > .score`).text(status.score[i]);
-        $(`#player${i} > .name`).text(status.name[i]);
-    }
-};
+// Functions allows to change a player's name.
+function chooseNewName(clickedScore) {
+    const inputFieldId = "new-name"; //id for the input element to type a new name
+    const okButtonId = "name-ok"; //id for the OK button
+
+    let messageBuffer = $(message.html).html(); // Save current message to restore it after setting a new name.
+
+    // Find out which score was clicked and thus which name should be changed.
+    let elementId = $(clickedScore).attr("id");
+    let lastIdSymbol = elementId[elementId.length - 1];
+    let playerNumber = parseInt(lastIdSymbol);
+    $(message.html).html(`<span>Enter new name for Player ${playerNumber}: </span><input id="${inputFieldId}" type="text" value="AI (level 2)" size="12"><button id="${okButtonId}">OK</button>`);
+
+    // Save the new name and restore current message
+    $(`#${okButtonId}`).click(function () {
+        let newName = $(`#${inputFieldId}`).val();
+        if (setNewName(newName, playerNumber) == -100) { return; }; // If something went wrong, exit the function without doing anything.
+        scoreBoard.update(status.score, status.name);
+        $(message.html).html(messageBuffer);
+        message.update();
+        // If the name of the current player is changed then pretend that the current is opponent and force update the current player (to make it move). 
+        if (playerNumber == status.player) {
+            status.player = status.player % 2 + 1;
+            updatePlayer();
+        }
+    });
+}
 
 // Function initializes the board, score, and player message.
 function initializeBoardAndScore() {
@@ -213,7 +254,7 @@ function initializeBoardAndScore() {
     updateBoardDisplay();
     $("#welcome").hide();
     $("#play").show();
-    displayScore();
+    scoreBoard.update(status.score, status.name);
 }
 
 // Function initializes a map array (there are 2 possible maps: "current" and "permitted").
@@ -256,8 +297,8 @@ function potentialAiMove() {
             }
         }
     }
-    // If "aiLevel" is at 2 then consider only moves with maximal gain.
-    if (status.aiLevel == 2) {
+    // If "aiPlayerLevel" is at 2 then consider only moves with maximal gain.
+    if (status.aiPlayerLevel == 2) {
         let maxGain = potentialGain.reduce(function (a, b) { return Math.max(a, b); }); // Find the maximal possible gain.
         let maximumY = [];
         let maximumX = [];
@@ -283,8 +324,8 @@ function potentialAiMove() {
     updateMapPermitted(clickedSquare); // Update "status.mapPermitted".
     updateBoardDisplay(); // Update colors on the board according to the move.
 
-    updateScore(clickedSquare); // Update score.
-    displayScore(); // Display the current score.
+    updateScore(); // Update score.
+    scoreBoard.update(status.score, status.name); // Display the current score.
 
     updatePlayer(); // Pass move to the opposite player.
 }
@@ -312,31 +353,33 @@ function setNewColor(squareToBeChanged, newColor) {
 
 // Function sets a new name ("newName") and "playerIsHuman" flag (0 for an AI player, or 1 for a human player); returns -100 if there is a problem
 function setNewName(newName, playerNumber) {
-    let opponentPlayerNumber = playerNumber % 2 + 1;
+    // Analyze the entered new name. If the user tried to select an "AI-name" then comtrol that it is correct
+    let opponentPlayerNumber = playerNumber % 2 + 1; //calculate the opponent player number
     let newNameStartsWith = newName.slice(0, 10);
     let newNameEndsWith = newName.slice(11, 12);
-    if (newNameStartsWith == "AI (level ") {
-        if (newNameEndsWith != ')') {
-            alert("The AI level looks strange. It MUST be not lower than 1 and no higher than 4.");
+    if (newNameStartsWith == "AI (level ") { // if the new name starts as a correct "AI-name"
+        if (newNameEndsWith != ')') { // if the new name starts as a correct "AI-name" but doesn't end as one
+            alert(`The AI level looks strange. It MUST be not lower than ${aiLevel.MIN} and no higher than ${aiLevel.MAX}.`);
             return -100;
         }
-        if (!status.playerIsHuman[opponentPlayerNumber]) {
+        if (!status.playerIsHuman[opponentPlayerNumber]) { // if the user tries to switch both players to AI
             alert("At present there MUST be at least 1 HUMAN player");
             return -100;
         } else {
-            let newAiLevel = newName.charCodeAt(10) - 48;
-            if (newAiLevel < status.minAiLevel || newAiLevel > status.maxAiLevel) {
-                alert(`At present minimal AI level is ${status.minAiLevel} and maximal is ${status.maxAiLevel}. While you try to set it to ${newAiLevel}.`);
+            let newAiPlayerLevel = newName.charCodeAt(10) - 48;
+            if (newAiPlayerLevel < aiLevel.MIN || newAiPlayerLevel > aiLevel.MAX) { // if the chosen AI level is not supported yet
+                alert(`At present minimal AI level is ${aiLevel.MIN} and maximal is ${aiLevel.MAX}. While you try to set it to ${newAiPlayerLevel}.`);
                 return -100;
-            } else {
+            } else { // the new name is a correct "AI-name"
                 status.playerIsHuman[playerNumber] = false;
-                status.aiLevel = newAiLevel;
+                status.aiPlayerLevel = newAiPlayerLevel;
             }
         }
-    } else {
+    } else { // the new name is a "human" name
         status.playerIsHuman[playerNumber] = true;
     }
-    status.name[playerNumber] = newName;
+
+    status.name[playerNumber] = newName; //set the new name
 }
 
 // Function calculates a coordinate on toroid if the initial coordinate is "c0" and the coordinate shift is "dC".
@@ -352,7 +395,7 @@ function updateMapCurrent(center) {
     //reverse the opponent's squares
     for (let i = 0; i < 8; i++) {
         if (gain[i] > 0) {
-            let dir = status.basis[i];
+            let dir = basis[i];
             let toBeChanged = { y: center.y, x: center.x };
             for (let j = 0; j < gain[i]; j++) {
                 toBeChanged.y = toroidCoordinate(toBeChanged.y, dir.dy);
@@ -386,41 +429,24 @@ function updateMapPermitted(center) {
     }
 };
 
-// Function updates the message when current player (status.player) clicks on square.
-function updateMessage() {
-    selector = "#message-content";
-    $(selector).html(`Move of ${status.name[status.player]} (${status.colors[status.player]})`);
-    $(selector).removeClass("font-white");
-    $(selector).removeClass("font-black");
-    $(selector).addClass("font-" + status.colors[status.player]);
-}
-
 // Function passes the move to the opposite player, or gives the current player the right to move again, or finishes the game.
 function updatePlayer() {
     let opponentPlayerCanMove = checkIfPlayerCanMove(status.player % 2 + 1);
-    let selector = "#message-content";
     if (opponentPlayerCanMove) { // if the opponent player can move
         status.player = status.player % 2 + 1;
-        updateMessage();
+        message.update();
         potentialAiMove();
     } else {
         let currentPlayerCanMove = checkIfPlayerCanMove((status.player + 1) % 2 + 1);
         if (currentPlayerCanMove) { // if the opponent player cannot move but the current player can move again
-            status.player = status.player;
-            $(selector).html(`Move of Player${status.player} (${status.colors[status.player]}) again!`);
+            message.moveAgain(status.player);
             potentialAiMove();
-        } else { // if neither player can move
-            selector = "#message-content";
-            let winMessage = "DRAW";
-            if (status.score[1] > status.score[2]) { winMessage = `${status.name[1]} (${status.colors[1]}) WON!!!`; }
-            if (status.score[1] < status.score[2]) { winMessage = `${status.name[2]} (${status.colors[2]}) WON!!!`; }
-            $(selector).html(winMessage);
-        }
+        } else { message.gameResult(); } // if neither player can move then display the game result message
     }
 }
 
 // Function updates the score.
-function updateScore(center) {
+function updateScore() {
     let changeScoreBy = status.totalCalculatedGain;
     if (status.player == 1) {
         status.score[1] += changeScoreBy + 1;
@@ -436,7 +462,7 @@ function updateScore(center) {
 function updateBoardDisplay() {
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
-            setNewColor({ y: i, x: j }, status.colors[status.mapCurrent[i][j]]);
+            setNewColor({ y: i, x: j }, playerColor[status.mapCurrent[i][j]]);
         }
     }
 }
