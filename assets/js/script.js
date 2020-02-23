@@ -31,45 +31,20 @@ $(document).ready(function () {
     $("#button-restart").click(function () {
         for (let i = 0; i < 8; i++) { for (let j = 0; j < 8; j++) { status.mapCurrent[i][j] = 0; } } //set all squares to unoccupied (=0)
         updateBoardDisplay(status); // Update colors on thre board according to the reset state.
-        $("header > p").text("Reversi Game");
-        $("#score-display").hide();
-        $("#start-buttons-container").show();
-        $("#message-section").hide();
-    });
-
-    // React to clicking the "Help" button (reset to original view).
-    $("#button-help").click(function () {
-        //<a href="index.html"><span class="active">Home</span></a></li>
-//<a href="help.html" target="_blank"><span>Download CV (pdf)</span></a></li>
-             /*       
-        alert(
-            "This game is a slightly modified game of Reversi ( https://en.wikipedia.org/wiki/Reversi ).\n" +
-            'You can play either “Classic Reversi” or “Reversi-on-Toroid”.\n\n' +
-            '“CLASSIC” RULES:\n' +
-            "1) The BLACK player moves first. BLACK must click a square on the board, so that there exists at least one straight (horizontal, vertical, or diagonal) " +
-            "occupied line between the new BLACK square and another BLACK square, with one or more contiguous WHITE squares between them.\n" +
-            "2) After clicking the square, BLACK flips/captures (makes BLACK) all WHITE squares lying on a straight line between the new square " +
-            "and any old BLACK squares. Thus, a valid move is one where at least one square is reversed.\n" +
-            "3) Now WHITE plays. WHITE clicks an empty (GREEN) square making it WHITE, causing BLACK squares to flip.\n" +
-            "4) Players take alternate turns. If one player cannot make a valid move, play passes back to the other player.\n" +
-            "5) The game ends when neither player can legally click any of the remaining squares.\n" +
-            '“REVERSI-ON-TOROID” RULES:\n' +
-            "All rules are the same as in “Classic” but the board is treated as a toroid:\n" +
-            "1) The rightmost vertical is considered the left neighbor of the rightmost vertical.\n" +
-            "2) The top horizontal is considered the bottom neighbor of the bottom horizontal.\n"
-        ); */
+        $("#play").hide();
+        $("#welcome").show();
     });
 
     // React to choosing the "classic" version of Reversi.
     $("#start-classic").click(function () {
-        $("header > p").text("Classic Reversi");
+        $("#play > h3").text("Classic Reversi");
         status.boardIsClassic = true;
         initializeBoardAndScore(status);
     });
 
     // React to choosing the "toroid" version of Reversi .
     $("#start-toroid").click(function () {
-        $("header > p").text("Reversi-on-Toroid");
+        $("#play > h3").text("Reversi-on-Toroid");
         status.boardIsClassic = false;
         initializeBoardAndScore(status);
     });
@@ -235,10 +210,8 @@ function initializeBoardAndScore(status) {
     status.player = 2; // Pretend that the current player is 2 (the next one must be 1).
     updatePlayer(status);
     updateBoardDisplay(status);
-    $("#game-board").show();
-    $("#score-display").show();
-    $("#start-buttons-container").hide();
-    $("#message-section").show();
+    $("#welcome").hide();
+    $("#play").show();
     displayScore(status);
 }
 
@@ -436,7 +409,7 @@ function updatePlayer(status) {
             $(selector).html(`Move of Player${status.player} (${status.colors[status.player]}) again!`);
             potentialAiMove(status);
         } else { // if neither player can move
-            selector = "#message-section > div";
+            selector = "#message-container > div";
             let winMessage = "DRAW";
             if (status.score[1] > status.score[2]) { winMessage = `${status.name[1]} (${status.colors[1]}) WON!!!`; }
             if (status.score[1] < status.score[2]) { winMessage = `${status.name[2]} (${status.colors[2]}) WON!!!`; }

@@ -12,14 +12,26 @@
 
 <body>
 	<header>
-        <div id="menu-container">
-            <button id="button-restart">Restart</button>
+		<div id="menu-container">
+			<button id="button-restart">Restart</button>
 			<a href="help.html" target="_blank"><button id="button-help">Help</button></a>
-        </div>
-		<p>Reversi Game</p>
+		</div>
 	</header>
 
-	<section>
+	<section id="welcome">
+        <h3>Welcome to<br>Reversi Game!</h3>
+        <p>To come back to this page press "Restart".</p>
+        <p>To read rules and instructions press "Help".</p>
+        <p>If you already know the rules<br>START a "classic"<br>or "toroid" game!</p>
+        <h3>Good luck!</h3>
+	    <div id="start-buttons-container">
+		    <button id="start-classic">START <strong>CLASSIC</strong> REVERSI GAME</button>
+		    <button id="start-toroid">START <strong>TOROID</strong> REVERSI GAME</button>
+	    </div>
+    </section>
+
+	<section id=play>
+        <h3></h3>
 		<div id="game-board">
 			<div class="board-row">
 				<div class="square bg-green x0 y0"></div>
@@ -102,31 +114,23 @@
 				<div class="square bg-green x7 y7"></div>
 			</div>
 		</div>
-		<div id="start-buttons-container">
-			<button id="start-classic">START <strong>CLASSIC</strong> REVERSI GAME</button>
-			<button id="start-toroid">START <strong>TOROID</strong> REVERSI GAME</button>
-		</div>
-		<div id="score-display" style="display: none">
+		<div id="score-container">
 			<div id="player1" class="score-frame">
 				<div class="score"></div>
 				<div class="name"></div>
-				<div class="hint">Click to change the name.<br>
-                                To play against computer<br>
-                                type "AI (level 1 or 2)".
-                                
+				<div class="hint">
+                    Click to change the name.<br>To play against computer<br>type "AI (level 1 or 2)".
                 </div>
 			</div>
 			<div id="player2" class="score-frame">
 				<div class="score"></div>
 				<div class="name"></div>
-				<div class="hint">Click to change the name.<br>
-                                To play against computer<br>
-                                type "AI (level 1 or 2)".
-                                
+				<div class="hint">
+                    Click to change the name.<br>To play against computer<br>type "AI (level 1 or 2)".
                 </div>
 			</div>
 		</div>
-		<div id="message-section" hidden>
+		<div id="message-container">
 			<div id="message-content">Move of Player1</div>
 		</div>
 	</section>

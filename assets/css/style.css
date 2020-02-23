@@ -8,16 +8,6 @@ header {
     margin: 0;
 }
 
-header p {
-    font-family: Arial, sans-serif;
-    color: blue;
-    font-weight: 900;
-    font-size: 30px;
-    text-align: center;
-    font-style: italic;
-    margin: 5px;
-}
-
 #menu-container {
     display: block;
     margin: auto;
@@ -47,11 +37,56 @@ header p {
 
 
 /*************************
+Welcome container (for the initial page)
+**************************/
+
+#welcome > h3 {
+    font-family: Arial, sans-serif;
+    color: blue;
+    font-weight: 900;
+    font-size: 30px;
+    text-align: center;
+    font-style: italic;
+    margin: 0 0 10px 0;
+}
+
+#welcome > p {
+    font-family: Arial, sans-serif;
+    color: black;
+    font-weight: 900;
+    font-size: 18px;
+    text-align: center;
+    font-style: italic;
+    margin: 15px;
+}
+
+
+/*************************
+Play container (for playing the game)
+**************************/
+
+#play {
+    display: none;
+}
+
+#play > h3 {
+    font-family: Arial, sans-serif;
+    color: blue;
+    font-weight: 900;
+    font-size: 30px;
+    text-align: center;
+    font-style: italic;
+    margin: 0 0 10px 0;
+    padding: 0;
+}
+
+
+/*************************
 Board
 **************************/
 
 #game-board {
-    display: none;
+    display: block;
     margin: auto;
     clear: both;
 }
@@ -94,6 +129,7 @@ Start Buttons
     margin: auto;
     clear: both;
     width: 250px;
+    padding-top: 25px;
 }
 
 #start-buttons-container > button {
@@ -119,7 +155,7 @@ Start Buttons
 Score
 **************************/
 
-#score-display {
+#score-container {
     display: block;
     margin: auto;
     width: 280px;
@@ -177,12 +213,13 @@ Score
 Messages
 **************************/
 
-#message-section {
+#message-container {
+    display: block;
     background-color: #909090;
     margin-top: 10px;
 }
 
-#message-section > div {
+#message-container > div {
     display: block;
     clear: both;
     margin: auto;
@@ -203,7 +240,7 @@ Footer
 **************************/
 
 footer {
-	position: absolute;
+	position: fixed;
     bottom: 0;
     width: 98%; < d
 }
