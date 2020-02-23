@@ -219,7 +219,7 @@ Messages
     margin-top: 10px;
 }
 
-#message-container > div {
+#message-content {
     display: block;
     clear: both;
     margin: auto;
@@ -228,9 +228,6 @@ Messages
     font-family: Arial, sans-serif;
     width: 350px;
     text-align: center;
-}
-
-#message-content {
     padding: 5px;
 }
 
