@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Reversi Help</title>
+	<link href="assets/css/style.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="navbar">
+        <a href="#about">About</a>
+        <a href="#rules">Rules</a>
+        <a href="#how-to-play">How to play</a>
+    </div>
+
+<div class="main">
+	<section id="about">
+		<h2>About this game</h2>
+		<p>This game is a slightly modified game of Reversi (<a href="https://en.wikipedia.org/wiki/Reversi"
+				target="_blank">for history and details read this Wikipedia page</a>).</p>
+		<p>You can play either “Classic Reversi” or “Reversi-on-Toroid”.</p>
+	</section>
+	<section id="rules">
+		<h2>Rules</h2>
+		<h3>“Classic” rules:</h3>
+		<ol>
+			<li>
+				The BLACK player moves first. BLACK must click a square on the board, so that there exists at least one
+				straight (horizontal, vertical, or diagonal) occupied line between the new BLACK square and another
+				BLACK square, with one or more contiguous WHITE squares between them.
+			</li>
+			<li>
+				After clicking the square, BLACK flips/captures (makes BLACK) all WHITE squares lying on a straight line
+				between the new square and any old BLACK squares. Thus, a valid move is one where at least one square is
+				reversed.
+			</li>
+			<li>
+				Now WHITE plays. WHITE clicks an empty (GREEN) square making it WHITE, causing BLACK squares to flip.
+			</li>
+			<li>
+				Players take alternate turns. If one player cannot make a valid move, play passes back to the other
+				player.
+			</li>
+			<li>
+				The game ends when neither player can legally click any of the remaining squares.
+			</li>
+		</ol>
+		<h3>“Reversi-on-Toroid” rules:</h3>
+		<p>All rules are the same as in “Classic” but the board is treated as a toroid:<p>
+				<ul>
+					<li>The rightmost vertical is considered the left neighbor of the rightmost vertical.</li>
+					<li>The top horizontal is considered the bottom neighbor of the bottom horizontal.</li>
+				</ul>
+	</section>
+    <section id="how-to-play">
+		<h2>How to play</h2>
+        <p><span class="note">Note!</span> To go back to initial page click "<span class="red">Reset</span>" button (top left corner)</p>
+        <p>To read help click "<span class="red">Help</span>" button (top right corner)</p>
+        <h3>How to start</h3>
+        <h4>To start a game with classic rules</h4>
+        <p>Click "<span class="red">START CLASSIC REVERSI GAME</span>" button (bottom left corner)</p>
+        <h4>To start a game on toroid</h4>
+        <p>Click "<span class="red">START TOROID REVERSI GAME"</span> button (bottom right corner)</p>
+        <h3>When a game starts</h3>
+        <p>You can see (top to bottom)</p>
+        <ul>
+            <li>"Reset" and "Help" buttons</li>
+            <li>Type of the game you are playing</li>
+            <li>Game board</li>
+            <li>Current scores for BLACK player (on left) and WHITE player (on right)</li>
+            <li>Message line (in the beginning it says that BLACK player must move).</li>
+        </ul>
+        <h3>To change a player's name</h3>
+        <p>Click either BLACK or WHITE <span class="red">player's score</span>. In the message line enter a new name for the player. Then click OK.</p>
+        <p>The names can be changed whenever you want</p>
+        <h3>To choose computer ("AI") as a player</h3>
+        <p>Change the player's name to "<span class="red">AI (level 1)</span>" (a weaker opponent: random moves) or "<span class="red">AI (level 2)</span>" (default).</p>
+        <p><span class="note">Note!</span> <span class="red">Only one</span> player can be AI.</p>
+        <p>Whenever you want you can <span class="red">switch back from AI to human</span> player. Just choose any <span class="red">"non-AI" name</span> for the player.</p>
+        <h3>To make your move</h3>
+        <p>Click a <span class="green">green</span> (unoccupied) square.</p>
+        <p>If your move is <span class="red">not valid</span> you'll get a warning message and have one more chance to make a valid move.</p>
+        <h3>If a player cannot make a valid move...</h3>
+        <p>... then the opponent can move <span class="red">once more</span>. (A message about that is displayed.)</p>
+        <h3>When neither player can make a valid move...</h3>
+        <p>... the <span class="red">GAME IS OVER</span>.</p>
+        <p>To play one more game, click "<span class="red">Reset</span>" and begin from the beginning.</p>
+        <p><span class="note">Note!</span> Your custom name and human/computer settings remain the same.</p>
+	</section>
+</div>
+
+</body>

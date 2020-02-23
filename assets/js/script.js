@@ -39,6 +39,9 @@ $(document).ready(function () {
 
     // React to clicking the "Help" button (reset to original view).
     $("#button-help").click(function () {
+        //<a href="index.html"><span class="active">Home</span></a></li>
+//<a href="help.html" target="_blank"><span>Download CV (pdf)</span></a></li>
+             /*       
         alert(
             "This game is a slightly modified game of Reversi ( https://en.wikipedia.org/wiki/Reversi ).\n" +
             'You can play either “Classic Reversi” or “Reversi-on-Toroid”.\n\n' +
@@ -54,7 +57,7 @@ $(document).ready(function () {
             "All rules are the same as in “Classic” but the board is treated as a toroid:\n" +
             "1) The rightmost vertical is considered the left neighbor of the rightmost vertical.\n" +
             "2) The top horizontal is considered the bottom neighbor of the bottom horizontal.\n"
-        );
+        ); */
     });
 
     // React to choosing the "classic" version of Reversi.
