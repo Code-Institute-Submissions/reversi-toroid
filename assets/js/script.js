@@ -36,9 +36,9 @@ let status = {
         current: {},
         permitted: {},
     },
-/*    mapCurrent: {}, //map for the board: 0 - empty, 1 - black, 2 - white
-    map.permitted: {}, //map for permitted moves: 0 - empty, 1 - permitted, 2 - occupied
-*/
+    /*    mapCurrent: {}, //map for the board: 0 - empty, 1 - black, 2 - white
+        map.permitted: {}, //map for permitted moves: 0 - empty, 1 - permitted, 2 - occupied
+    */
     totalCalculatedGain: 0, // buffer variable for total potentintial gain obtained if a particular square is clicked
     individualCalculatedGains: [], // buffer array for individual potentintial gains in 8 directions obtained if a particular square is clicked
 }
@@ -68,9 +68,9 @@ class Map {
         }
     }
 
-    // Function updates "status.maps.current/permitted.map" when the current player ("player") clicks on a "centerSquare" square (centerSquare.y, centerSquare.x).
+    // Function updates "status.maps.current/permitted.map" when the current player ("player") clicks on "centerSquare" (centerSquare.y, centerSquare.x).
     update(centerSquare, player) {
-        let bufferSquare = {y: 0, x: 0}; // a square on the game board to be modified
+        let bufferSquare = { y: 0, x: 0 }; // a square on the game board to be modified
 
         if (this.type == "current") { // if the map to be updates is current
             this.map[centerSquare.y][centerSquare.x] = player; //update color of the centerSquare
@@ -83,14 +83,14 @@ class Map {
                     for (let j = 0; j < gain[i]; j++) {
                         bufferSquare.y = toroidCoordinate(bufferSquare.y, dir.dy);
                         bufferSquare.x = toroidCoordinate(bufferSquare.x, dir.dx);
-                        this.map[bufferSquare.y][bufferSquare.x] = player; //update color of the centerSquare
+                        this.map[bufferSquare.y][bufferSquare.x] = player; //update color of the bufferSquare
                     }
                 }
             }
         }
 
-        if (this.type == "permitted") { // if the map to be updates is current
-            this.map[centerSquare.y][centerSquare.x] = 2; //mark the "centerSquare" as occupied
+        if (this.type == "permitted") { // if the map to be updates is permitted
+            this.map[centerSquare.y][centerSquare.x] = 2; //mark "centerSquare" as occupied
             // Check all squares aroung the "centerSquare" 
             for (let i = -1; i < 2; i++) {
                 for (let j = -1; j < 2; j++) {
@@ -109,7 +109,67 @@ class Map {
                 }
             }
         }
-    };
+    }
+
+    // Function calculates gain if "player" clicks "centerSquare" for Classic rules.
+    calculateGain(centerSquare, player) {
+        let output = [];
+
+        if (this.isClassic) { // if the map to be updates is classic
+            for (let i = 0; i < 8; i++) {
+                let dir = basis[i];
+                let bufferSquare = { y: centerSquare.y, x: centerSquare.x }; // Initialize the square to be tested for 1 particular direction.
+                for (let j = 1; j < 8; j++) {
+                    bufferSquare.y += dir.dy;
+                    // if the terminal square is out of board vertically then gain in this direction is 0
+                    if (bufferSquare.y < 0 || bufferSquare.y > 7) {
+                        output.push(0);
+                        break;
+                    }
+                    bufferSquare.x += dir.dx;
+                    // if the terminal square is out of board horizontally then gain in this direction is 0
+                    if (bufferSquare.x < 0 || bufferSquare.x > 7) {
+                        output.push(0);
+                        break;
+                    }
+                    // if the terminal square is empty then gain in this direction is 0
+                    if (this.map[bufferSquare.y][bufferSquare.x] == 0) {
+                        output.push(0);
+                        break;
+                    }
+                    // if the terminal square is of own color then calcute the gain in this direction
+                    if (this.map[bufferSquare.y][bufferSquare.x] == player) {
+                        output.push(j - 1);
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!this.isClassic) { // if the map to be updates is toroid
+            for (let i = 0; i < 8; i++) {
+                let dir = basis[i];
+                let bufferSquare = { y: centerSquare.y, x: centerSquare.x };
+                for (let j = 1; j < 8; j++) {
+                    bufferSquare.y = toroidCoordinate(bufferSquare.y, dir.dy);
+                    bufferSquare.x = toroidCoordinate(bufferSquare.x, dir.dx);
+                    // if the terminal square is empty then gain in this direction is 0
+                    if (this.map[bufferSquare.y][bufferSquare.x] == 0) {
+                        output.push(0);
+                        break;
+                    }
+                    // if the terminal square is of own color then calcute the gain in this direction
+                    if (this.map[bufferSquare.y][bufferSquare.x] == player) {
+                        output.push(j - 1);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return output;
+    }
+
 }
 
 // An object for a board (below the game board) that displays the current score
@@ -188,7 +248,7 @@ $(document).ready(function () {
         }
 
         // Calculate gain in all 8 possible directions for clickedSquare clicked by current player (status.player) and check that the move is valid.
-        if (calculateGain(clickedSquare, status.player) == 0) {
+        if (calculateTotalGain(clickedSquare, status.player) == 0) {
             alert("Not a valid move! You MUST capture/flip AT LEAST 1 opponent square!!!"); // ... if not, show an alert and do not react.
             return;
         }
@@ -206,72 +266,14 @@ $(document).ready(function () {
 });
 
 
-/* Function to calculate potential gain if "playerToTest" clicks a square "center".
+/* Function to calculate potential gain if "player" clicks "centerSquare".
  * It saves gains in individual 8 directions in "status.individualCalculatedGains", and the total gain in "status.totalCalculatedGain".
  * The function returns the total gain. */
-function calculateGain(center, playerToTest) {
-    let potentialGains = status.boardIsClassic ? calculateGainClassic(center, playerToTest) : calculateGainToroid(center, playerToTest);
+function calculateTotalGain(centerSquare, player) {
+    let potentialGains = status.maps.current.calculateGain(centerSquare, player);
     status.individualCalculatedGains = potentialGains;
     status.totalCalculatedGain = potentialGains.reduce((a, b) => a + b, 0);
     return status.totalCalculatedGain;
-}
-
-// Function calculates gain if "playerToTest" clicks the "center" square for Classic rules.
-function calculateGainClassic(center, playerToTest) {
-    let output = [];
-    for (let i = 0; i < 8; i++) {
-        let dir = basis[i];
-        let toBeTested = { y: center.y, x: center.x }; // Initialize the square to be tested for 1 particular direction.
-        for (let j = 1; j < 8; j++) {
-            toBeTested.y += dir.dy;
-            // if the terminal square is out of board vertically then gain in this direction is 0
-            if (toBeTested.y < 0 || toBeTested.y > 7) {
-                output.push(0);
-                break;
-            }
-            toBeTested.x += dir.dx;
-            // if the terminal square is out of board horizontally then gain in this direction is 0
-            if (toBeTested.x < 0 || toBeTested.x > 7) {
-                output.push(0);
-                break;
-            }
-            // if the terminal square is empty then gain in this direction is 0
-            if (status.maps.current.map[toBeTested.y][toBeTested.x] == 0) {
-                output.push(0);
-                break;
-            }
-            // if the terminal square is of own color then calcute the gain in this direction
-            if (status.maps.current.map[toBeTested.y][toBeTested.x] == playerToTest) {
-                output.push(j - 1);
-                break;
-            }
-        }
-    }
-    return output;
-}
-
-// Function calculates gain if "playerToTest" clicks the "center" square for Reversi-on-Toroid rules.
-function calculateGainToroid(center, playerToTest) {
-    let output = [];
-    for (let i = 0; i < 8; i++) {
-        let dir = basis[i];
-        let toBeTested = { y: center.y, x: center.x };
-        for (let j = 1; j < 8; j++) {
-            toBeTested.y = toroidCoordinate(toBeTested.y, dir.dy);
-            toBeTested.x = toroidCoordinate(toBeTested.x, dir.dx);
-            // if the terminal square is empty then gain in this direction is 0
-            if (status.maps.current.map[toBeTested.y][toBeTested.x] == 0) {
-                output.push(0);
-                break;
-            }
-            // if the terminal square is of own color then calcute the gain in this direction
-            if (status.maps.current.map[toBeTested.y][toBeTested.x] == playerToTest) {
-                output.push(j - 1);
-                break;
-            }
-        }
-    }
-    return output;
 }
 
 // Function checks if "player" can move.
@@ -281,7 +283,7 @@ function checkIfPlayerCanMove(player) {
         if (reply) { break; }
         for (let j = 0; j < 8; j++) {
             if (status.maps.permitted.map[i][j] != 1) { continue; }
-            let totalPotentialGain = calculateGain({ y: i, x: j }, player);
+            let totalPotentialGain = calculateTotalGain({ y: i, x: j }, player);
             if (totalPotentialGain > 0) {
                 reply = true;
                 break;
@@ -343,7 +345,7 @@ function potentialAiMove() {
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
             if (status.maps.permitted.map[i][j] == 1) {
-                let buffer = calculateGain({ y: i, x: j }, status.player);
+                let buffer = calculateTotalGain({ y: i, x: j }, status.player);
                 potentialY.push(i);
                 potentialX.push(j);
                 potentialGain.push(buffer);
@@ -372,7 +374,7 @@ function potentialAiMove() {
         x: potentialX[randomIndex],
     }
 
-    calculateGain(clickedSquare, status.player); // Calculate gain in all 8 possible directions for "clickedSquare" clicked by the current player ("status.player").
+    calculateTotalGain(clickedSquare, status.player); // Calculate gain in all 8 possible directions for "clickedSquare" clicked by the current player ("status.player").
     status.maps.current.update(clickedSquare, status.player);  // Update "status.maps.current".
     status.maps.permitted.update(clickedSquare, status.player); // Update "status.maps.permitted".
     updateBoardDisplay(); // Update colors on the board according to the move.
