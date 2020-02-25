@@ -1,26 +1,47 @@
-const basis = [
-    { dy: -1, dx: 0 },
-    { dy: -1, dx: 1 },
-    { dy: 0, dx: 1 },
-    { dy: 1, dx: 1 },
-    { dy: 1, dx: 0 },
-    { dy: 1, dx: -1 },
-    { dy: 0, dx: -1 },
-    { dy: -1, dx: -1 },
-]; //basis for testeing possible gains in 8 different directions (N, NE, E, SE, S, SW, W, NW)
+const CompassEnum = {
+    N: 0,
+    NE: 1,
+    E: 2,
+    SE: 3,
+    S: 4,
+    SW: 5,
+    W: 6,
+    NW: 7,
+    basis: {
+        0: { dy: -1, dx: 0 },
+        1: { dy: -1, dx: 1 },
+        2: { dy: 0, dx: 1 },
+        3: { dy: 1, dx: 1 },
+        4: { dy: 1, dx: 0 },
+        5: { dy: 1, dx: -1 },
+        6: { dy: 0, dx: -1 },
+        7: { dy: -1, dx: -1 },
+    }
+};
 
-const playerColor = ["green", "black", "white"]; //colors for players: "green" - unoccupied, "black" - player 1, "white" - player 2
+//colors for players: "green" - unoccupied, "black" - player 1, "white" - player 2
+const PlayerColorEnum = {
+    UNOCCUPIED: 0,
+    PLAYER1: 1,
+    PLAYER2: 2,
+    color: {
+        0: "green",
+        1: "black",
+        2: "white",
+    }
+};
 
-const aiLevel = {
+const AiLevelEnum = {
     MIN: 1, //minimal AI level
     MAX: 2, //maximal AI level
 }
 
 
 if (Object.freeze) {
-    Object.freeze(basis);
-    Object.freeze(playerColor);
-    Object.freeze(aiLevel);
+    Object.freeze(CompassEnum);
+    //Object.freeze(basis);
+    Object.freeze(PlayerColorEnum);
+    Object.freeze(AiLevelEnum);
 }
 
 // The main data object with constants and main variables.
@@ -36,11 +57,8 @@ let status = {
         current: {},
         permitted: {},
     },
-    /*    mapCurrent: {}, //map for the board: 0 - empty, 1 - black, 2 - white
-        map.permitted: {}, //map for permitted moves: 0 - empty, 1 - permitted, 2 - occupied
-    */
-    totalCalculatedGain: 0, // buffer variable for total potentintial gain obtained if a particular square is clicked
-    individualCalculatedGains: [], // buffer array for individual potentintial gains in 8 directions obtained if a particular square is clicked
+    //totalCalculatedGain: 0, // buffer variable for total potentintial gain obtained if a particular square is clicked
+    //individualCalculatedGains: [], // buffer array for individual potentintial gains in 8 directions obtained if a particular square is clicked
 }
 
 class Map {
@@ -66,6 +84,8 @@ class Map {
             this.map[4][2] = 1; this.map[4][3] = 2; this.map[4][4] = 2; this.map[4][5] = 1;
             this.map[5][2] = 1; this.map[5][3] = 1; this.map[5][4] = 1; this.map[5][5] = 1;
         }
+        this.potentialGains = [];
+        this.totalPotentialGain = 0;
     }
 
     // Function updates "status.maps.current/permitted.map" when the current player ("player") clicks on "centerSquare" (centerSquare.y, centerSquare.x).
@@ -74,11 +94,11 @@ class Map {
 
         if (this.type == "current") { // if the map to be updates is current
             this.map[centerSquare.y][centerSquare.x] = player; //update color of the centerSquare
-            let gain = status.individualCalculatedGains; //a temporary short variable for an array with 8 gains in different directions
+            let gain = this.potentialGains; //a temporary short variable for an array with 8 potential gains in different directions
             //reverse the opponent's squares
             for (let i = 0; i < 8; i++) {
                 if (gain[i] > 0) {
-                    let dir = basis[i];
+                    let dir = CompassEnum.basis[i];
                     bufferSquare = { y: centerSquare.y, x: centerSquare.x };
                     for (let j = 0; j < gain[i]; j++) {
                         bufferSquare.y = toroidCoordinate(bufferSquare.y, dir.dy);
@@ -117,7 +137,7 @@ class Map {
 
         if (this.isClassic) { // if the map to be updates is classic
             for (let i = 0; i < 8; i++) {
-                let dir = basis[i];
+                let dir = CompassEnum.basis[i];
                 let bufferSquare = { y: centerSquare.y, x: centerSquare.x }; // Initialize the square to be tested for 1 particular direction.
                 for (let j = 1; j < 8; j++) {
                     bufferSquare.y += dir.dy;
@@ -148,7 +168,7 @@ class Map {
 
         if (!this.isClassic) { // if the map to be updates is toroid
             for (let i = 0; i < 8; i++) {
-                let dir = basis[i];
+                let dir = CompassEnum.basis[i];
                 let bufferSquare = { y: centerSquare.y, x: centerSquare.x };
                 for (let j = 1; j < 8; j++) {
                     bufferSquare.y = toroidCoordinate(bufferSquare.y, dir.dy);
@@ -170,6 +190,13 @@ class Map {
         return output;
     }
 
+    // Function to calculate total potential gain if "player" clicks "centerSquare".
+    calculateTotalGain(centerSquare, player) {
+        this.potentialGains = status.maps.current.calculateGain(centerSquare, player);
+        this.totalPotentialGain = this.potentialGains.reduce((a, b) => a + b, 0);
+        return this.totalPotentialGain;
+    }
+
 }
 
 // An object for a board (below the game board) that displays the current score
@@ -187,20 +214,20 @@ let message = {
     html: "#message-content", //selector for the message section
 
     update: function () { // Function updates the message when current player (status.player) clicks on square, or a name is changed, or the game is over.
-        $(this.html).html(`Move of ${status.name[status.player]} (${playerColor[status.player]})`);
+        $(this.html).html(`Move of ${status.name[status.player]} (${PlayerColorEnum.color[status.player]})`);
         $(this.html).removeClass("font-white");
         $(this.html).removeClass("font-black");
-        $(this.html).addClass("font-" + playerColor[status.player]);
+        $(this.html).addClass("font-" + PlayerColorEnum.color[status.player]);
     },
 
     moveAgain: function (player) {
-        $(this.html).html(`Move of Player${player} (${playerColor[player]}) again!`);
+        $(this.html).html(`Move of Player${player} (${PlayerColorEnum.color[player]}) again!`);
     },
 
     gameResult: function () {
         let winMessage = "DRAW";
-        if (status.score[1] > status.score[2]) { winMessage = `${status.name[1]} (${playerColor[1]}) WON!!!`; }
-        if (status.score[1] < status.score[2]) { winMessage = `${status.name[2]} (${playerColor[2]}) WON!!!`; }
+        if (status.score[1] > status.score[2]) { winMessage = `${status.name[1]} (${PlayerColorEnum.color[1]}) WON!!!`; }
+        if (status.score[1] < status.score[2]) { winMessage = `${status.name[2]} (${PlayerColorEnum.color[2]}) WON!!!`; }
         $(message.html).html(winMessage);
     },
 }
@@ -248,7 +275,7 @@ $(document).ready(function () {
         }
 
         // Calculate gain in all 8 possible directions for clickedSquare clicked by current player (status.player) and check that the move is valid.
-        if (calculateTotalGain(clickedSquare, status.player) == 0) {
+        if (status.maps.current.calculateTotalGain(clickedSquare, status.player) == 0) {
             alert("Not a valid move! You MUST capture/flip AT LEAST 1 opponent square!!!"); // ... if not, show an alert and do not react.
             return;
         }
@@ -269,12 +296,14 @@ $(document).ready(function () {
 /* Function to calculate potential gain if "player" clicks "centerSquare".
  * It saves gains in individual 8 directions in "status.individualCalculatedGains", and the total gain in "status.totalCalculatedGain".
  * The function returns the total gain. */
+/*
 function calculateTotalGain(centerSquare, player) {
     let potentialGains = status.maps.current.calculateGain(centerSquare, player);
     status.individualCalculatedGains = potentialGains;
     status.totalCalculatedGain = potentialGains.reduce((a, b) => a + b, 0);
     return status.totalCalculatedGain;
 }
+*/
 
 // Function checks if "player" can move.
 function checkIfPlayerCanMove(player) {
@@ -283,7 +312,7 @@ function checkIfPlayerCanMove(player) {
         if (reply) { break; }
         for (let j = 0; j < 8; j++) {
             if (status.maps.permitted.map[i][j] != 1) { continue; }
-            let totalPotentialGain = calculateTotalGain({ y: i, x: j }, player);
+            let totalPotentialGain = status.maps.current.calculateTotalGain({ y: i, x: j }, player);
             if (totalPotentialGain > 0) {
                 reply = true;
                 break;
@@ -341,24 +370,24 @@ function potentialAiMove() {
     if (status.playerIsHuman[status.player]) { return; } // The function will not be executed if the current player is human.
     let potentialY = [];
     let potentialX = [];
-    let potentialGain = [];
+    let bufferGain = [];
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
             if (status.maps.permitted.map[i][j] == 1) {
-                let buffer = calculateTotalGain({ y: i, x: j }, status.player);
+                let buffer = status.maps.current.calculateTotalGain({ y: i, x: j }, status.player);
                 potentialY.push(i);
                 potentialX.push(j);
-                potentialGain.push(buffer);
+                bufferGain.push(buffer);
             }
         }
     }
     // If "aiPlayerLevel" is at 2 then consider only moves with maximal gain.
     if (status.aiPlayerLevel == 2) {
-        let maxGain = potentialGain.reduce(function (a, b) { return Math.max(a, b); }); // Find the maximal possible gain.
+        let maxGain = bufferGain.reduce(function (a, b) { return Math.max(a, b); }); // Find the maximal possible gain.
         let maximumY = [];
         let maximumX = [];
-        for (i = 0; i < potentialGain.length; i++) {
-            if (potentialGain[i] == maxGain) {
+        for (i = 0; i < bufferGain.length; i++) {
+            if (bufferGain[i] == maxGain) {
                 maximumY.push(potentialY[i]);
                 maximumX.push(potentialX[i]);
             }
@@ -374,7 +403,8 @@ function potentialAiMove() {
         x: potentialX[randomIndex],
     }
 
-    calculateTotalGain(clickedSquare, status.player); // Calculate gain in all 8 possible directions for "clickedSquare" clicked by the current player ("status.player").
+    let buffMessage = status.maps.current.calculateTotalGain(clickedSquare, status.player); // Calculate potential gains in all 8 possible directions for "clickedSquare" clicked by the current player ("status.player").
+    console.log(`AI clicks y=${clickedSquare.y}, x=${clickedSquare.x}; potential gains: ${status.maps.current.potentialGains}, totally: ${status.maps.current.totalPotentialGain}`);
     status.maps.current.update(clickedSquare, status.player);  // Update "status.maps.current".
     status.maps.permitted.update(clickedSquare, status.player); // Update "status.maps.permitted".
     updateBoardDisplay(); // Update colors on the board according to the move.
@@ -414,7 +444,7 @@ function setNewName(newName, playerNumber) {
     let newNameEndsWith = newName.slice(11, 12);
     if (newNameStartsWith == "AI (level ") { // if the new name starts as a correct "AI-name"
         if (newNameEndsWith != ')') { // if the new name starts as a correct "AI-name" but doesn't end as one
-            alert(`The AI level looks strange. It MUST be not lower than ${aiLevel.MIN} and no higher than ${aiLevel.MAX}.`);
+            alert(`The AI level looks strange. It MUST be not lower than ${AiLevelEnum.MIN} and no higher than ${AiLevelEnum.MAX}.`);
             return -100;
         }
         if (!status.playerIsHuman[opponentPlayerNumber]) { // if the user tries to switch both players to AI
@@ -422,8 +452,8 @@ function setNewName(newName, playerNumber) {
             return -100;
         } else {
             let newAiPlayerLevel = newName.charCodeAt(10) - 48;
-            if (newAiPlayerLevel < aiLevel.MIN || newAiPlayerLevel > aiLevel.MAX) { // if the chosen AI level is not supported yet
-                alert(`At present minimal AI level is ${aiLevel.MIN} and maximal is ${aiLevel.MAX}. While you try to set it to ${newAiPlayerLevel}.`);
+            if (newAiPlayerLevel < AiLevelEnum.MIN || newAiPlayerLevel > AiLevelEnum.MAX) { // if the chosen AI level is not supported yet
+                alert(`At present minimal AI level is ${AiLevelEnum.MIN} and maximal is ${AiLevelEnum.MAX}. While you try to set it to ${newAiPlayerLevel}.`);
                 return -100;
             } else { // the new name is a correct "AI-name"
                 status.playerIsHuman[playerNumber] = false;
@@ -462,7 +492,7 @@ function updatePlayer() {
 
 // Function updates the score.
 function updateScore() {
-    let changeScoreBy = status.totalCalculatedGain;
+    let changeScoreBy = status.maps.current.totalPotentialGain;
     if (status.player == 1) {
         status.score[1] += changeScoreBy + 1;
         status.score[2] -= changeScoreBy;
@@ -477,7 +507,7 @@ function updateScore() {
 function updateBoardDisplay() {
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
-            setNewColor({ y: i, x: j }, playerColor[status.maps.current.map[i][j]]);
+            setNewColor({ y: i, x: j }, PlayerColorEnum.color[status.maps.current.map[i][j]]);
         }
     }
 }
