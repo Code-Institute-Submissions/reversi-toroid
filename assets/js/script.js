@@ -8,14 +8,14 @@ const CompassEnum = {
     W: 6,
     NW: 7,
     basis: {
-        0: {dy: -1, dx: 0},
-        1: {dy: -1, dx: 1},
-        2: {dy: 0, dx: 1},
-        3: {dy: 1, dx: 1},
-        4: {dy: 1, dx: 0},
-        5: {dy: 1, dx: -1},
-        6: {dy: 0, dx: -1},
-        7: {dy: -1, dx: -1},
+        0: { dy: -1, dx: 0 },
+        1: { dy: -1, dx: 1 },
+        2: { dy: 0, dx: 1 },
+        3: { dy: 1, dx: 1 },
+        4: { dy: 1, dx: 0 },
+        5: { dy: 1, dx: -1 },
+        6: { dy: 0, dx: -1 },
+        7: { dy: -1, dx: -1 },
     },
 };
 
@@ -46,13 +46,12 @@ if (Object.freeze) {
 
 // The main data object with constants and main variables.
 let status = {
-    boardIsClassic: false, //flag for type of game rules: true - classic game on a square board, false - game on a toroid board
     playerIsHuman: [false, true, true,], //[unused, player 1 is human (true/false), player 2 is human (true/false)]
     name: ["", "Player1", "Player2",], //[unused, name of player 1, name of player 2]
-    score: [0, 2, 2,], //[unused, score of player 1, score of player 2]
+    scoreBoard: {}, // An object for score board [0, 2, 2,], //[unused, score of player 1, score of player 2]
     player: 0, //current player to move: 0 - empty, 1 - black, 2 - white
     aiPlayerLevel: 0, //AI level; must be either 1, or 2, or 3, or 4; level 0 is default for no AI player
-    maps: {
+    maps: { // An object for maps.
         current: {},
         permitted: {},
     },
@@ -135,7 +134,7 @@ class Map {
             let bufferSquare = { y: square.y, x: square.x }; // Initialize the square to be tested for 1 particular direction.
             for (let j = 1; j < 8; j++) {
                 if (this.isClassic) { // if the map to be updates is classic
-                    bufferSquare.y += dir.dy;                    
+                    bufferSquare.y += dir.dy;
                     // if the terminal square is out of board vertically then gain in this direction is 0
                     if (bufferSquare.y < 0 || bufferSquare.y > 7) {
                         output.push(0);
@@ -176,42 +175,69 @@ class Map {
 
         this.potentialGains = output;
         this.totalPotentialGain = this.potentialGains.reduce((a, b) => a + b, 0);
-        
+
         return this.totalPotentialGain;
     }
 }
 
 // An object for a board (below the game board) that displays the current score
-let scoreBoard = {
-    update: function (score, name) { // Function displays the current score.
+class ScoreBoard {
+    constructor() {
+        this.score = [0, 2, 2,];
+    }
+
+    player1Wins() {
+        return this.score[1] > this.score[2];
+    }
+
+    player2Wins() {
+        return this.score[1] < this.score[2];
+    }
+
+    display() { // Function displays the current score.
         for (let i = 1; i < 3; i++) {
-            $(`#player${i} > .score`).text(score[i]);
-            $(`#player${i} > .name`).text(name[i]);
+            $(`#player${i} > .score`).text(this.score[i]);
+            $(`#player${i} > .name`).text(status.name[i]);
         }
-    },
+    }
+
+    updateScore() { // Function updates the score.
+        let changeScoreBy = status.maps.current.totalPotentialGain;
+        switch (status.player) {
+            case 1:
+                this.score[1] += changeScoreBy + 1;
+                this.score[2] -= changeScoreBy;
+                break;
+            case 2:
+                this.score[2] += changeScoreBy + 1;
+                this.score[1] -= changeScoreBy;
+                break;
+        }
+    }
+
 };
 
 // An object for the message section (below the score board) that displays various messages.
 let message = {
     html: "#message-content", //selector for the message section
 
-    update: function () { // Function updates the message when current player (status.player) clicks on square, or a name is changed, or the game is over.
+    update() { // Function updates the message when current player (status.player) clicks on square, or a name is changed, or the game is over.
         $(this.html).html(`Move of ${status.name[status.player]} (${PlayerColorEnum.color[status.player]})`);
         $(this.html).removeClass("font-white");
         $(this.html).removeClass("font-black");
         $(this.html).addClass("font-" + PlayerColorEnum.color[status.player]);
     },
 
-    moveAgain: function (player) {
-        $(this.html).html(`Move of Player${player} (${PlayerColorEnum.color[player]}) again!`);
+    moveAgain() {
+        $(this.html).html(`Move of Player${status.player} (${PlayerColorEnum.color[status.player]}) again!`);
     },
 
-    gameResult: function () {
+    gameResult() {
         let winMessage = "DRAW";
-        if (status.score[1] > status.score[2]) { winMessage = `${status.name[1]} (${PlayerColorEnum.color[1]}) WON!!!`; }
-        if (status.score[1] < status.score[2]) { winMessage = `${status.name[2]} (${PlayerColorEnum.color[2]}) WON!!!`; }
-        $(message.html).html(winMessage);
-    },
+        if (status.scoreBoard.player1Wins()) { winMessage = `${status.name[1]} (${PlayerColorEnum.color[1]}) WON!!!`; }
+        if (status.scoreBoard.player2Wins()) { winMessage = `${status.name[2]} (${PlayerColorEnum.color[2]}) WON!!!`; }
+        $(this.html).html(winMessage);
+    }
 };
 
 
@@ -226,14 +252,18 @@ $(document).ready(function () {
     // React to choosing the "classic" version of Reversi.
     $("#start-classic").click(function () {
         $("#play > h3").text("Classic Reversi");
-        status.boardIsClassic = true;
+        status.maps.current = new Map(true, "current");
+        status.maps.permitted = new Map(true, "permitted");
+        status.scoreBoard = new ScoreBoard();
         initializeBoardAndScore();
     });
 
     // React to choosing the "toroid" version of Reversi .
     $("#start-toroid").click(function () {
         $("#play > h3").text("Reversi-on-Toroid");
-        status.boardIsClassic = false;
+        status.maps.current = new Map(false, "current");
+        status.maps.permitted = new Map(false, "permitted");
+        status.scoreBoard = new ScoreBoard();
         initializeBoardAndScore();
     });
 
@@ -266,8 +296,8 @@ $(document).ready(function () {
         status.maps.permitted.update(clickedSquare, status.player);  // Update "status.maps.permitted".
         updateBoardDisplay(); // Update colors on the board according to the move.
 
-        updateScore(); // Update score.
-        scoreBoard.update(status.score, status.name); // Display the current score.
+        status.scoreBoard.updateScore(); // Update score.
+        status.scoreBoard.display(); // Display the current score.
 
         updatePlayer(); // Pass move to the opposite player.
     });
@@ -310,7 +340,7 @@ function chooseNewName(clickedScore) {
     $(`#${okButtonId}`).click(function () {
         let newName = $(`#${inputFieldId}`).val();
         if (setNewName(newName, playerNumber) == -100) { return; }; // If something went wrong, exit the function without doing anything.
-        scoreBoard.update(status.score, status.name);
+        status.scoreBoard.display();
         $(message.html).html(messageBuffer);
         message.update();
         // If the name of the current player is changed then pretend that the current is opponent and force update the current player (to make it move). 
@@ -321,18 +351,15 @@ function chooseNewName(clickedScore) {
     });
 }
 
+
 // Function initializes the board, score, and player message.
 function initializeBoardAndScore() {
-    status.maps.current = new Map(status.boardIsClassic, "current");
-    status.maps.permitted = new Map(status.boardIsClassic, "permitted");
-    status.score[1] = 2;
-    status.score[2] = 2;
     status.player = 2; // Pretend that the current player is 2 (the next one must be 1).
     updatePlayer();
     updateBoardDisplay();
     $("#welcome").hide();
     $("#play").show();
-    scoreBoard.update(status.score, status.name);
+    status.scoreBoard.display();
 }
 
 
@@ -380,8 +407,8 @@ function potentialAiMove() {
     status.maps.permitted.update(clickedSquare, status.player); // Update "status.maps.permitted".
     updateBoardDisplay(); // Update colors on the board according to the move.
 
-    updateScore(); // Update score.
-    scoreBoard.update(status.score, status.name); // Display the current score.
+    status.scoreBoard.updateScore(); // Update score.
+    status.scoreBoard.display(); // Display the current score.
 
     updatePlayer(); // Pass move to the opposite player.
 }
@@ -453,24 +480,13 @@ function updatePlayer() {
     } else {
         let currentPlayerCanMove = checkIfPlayerCanMove((status.player + 1) % 2 + 1);
         if (currentPlayerCanMove) { // if the opponent player cannot move but the current player can move again
-            message.moveAgain(status.player);
+            message.moveAgain();
             potentialAiMove();
         } else { message.gameResult(); } // if neither player can move then display the game result message
     }
 }
 
-// Function updates the score.
-function updateScore() {
-    let changeScoreBy = status.maps.current.totalPotentialGain;
-    if (status.player == 1) {
-        status.score[1] += changeScoreBy + 1;
-        status.score[2] -= changeScoreBy;
-    }
-    if (status.player == 2) {
-        status.score[2] += changeScoreBy + 1;
-        status.score[1] -= changeScoreBy;
-    }
-}
+
 
 // Function updates colors on the board according to "status.maps.current".
 function updateBoardDisplay() {
