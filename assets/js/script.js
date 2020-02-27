@@ -70,6 +70,28 @@ class Square {
         $(selector).removeClass("bg-green");
         $(selector).addClass("bg-" + newColor);
     }
+
+    classicShiftBy(shift) { // Function shifts coordinates of a square "this" on the classic board by a vector "shift". Returns false if square is out of the board.
+        this.y = this.y + shift.dy;
+        this.x = this.x + shift.dx;
+        if (this.y < 0 || this.y > 7 || this.x < 0 || this.y > 7) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    toroidShiftBy(shift) { // Function shifts coordinates of a square "this" on the toroid board by a vector "shift".
+        this.y = (this.y + shift.dy + 8) % 8;
+        this.x = (this.x + shift.dx + 8) % 8;
+    }
+}
+
+class Vector {
+    constructor(dy, dx) {
+        this.dy = dy;
+        this.dx = dx;
+    }
 }
 
 class Map {
@@ -113,8 +135,7 @@ class Map {
                     let dir = CompassEnum.basis[i];
                     Object.assign(bufferSquare, square); // Initialize the buffer square.
                     for (let j = 0; j < this.potentialGains[i]; j++) {
-                        bufferSquare.y = toroidCoordinate(bufferSquare.y, dir.dy);
-                        bufferSquare.x = toroidCoordinate(bufferSquare.x, dir.dx);
+                        bufferSquare.toroidShiftBy(dir);
                         this.map[bufferSquare.y][bufferSquare.x] = player; //update color of the bufferSquare
                     }
                 }
@@ -126,17 +147,14 @@ class Map {
             // Check all squares aroung the "square"
             for (let i = -1; i < 2; i++) {
                 for (let j = -1; j < 2; j++) {
-                    // Calculate "classical" or "toroid" coordinates of the square to be checked
+                    Object.assign(bufferSquare, square);
+                    let shift = new Vector(i, j);
                     if (this.isClassic) {
-                        bufferSquare.x = square.x + i;
-                        bufferSquare.y = square.y + j;
+                        if (!bufferSquare.classicShiftBy(shift)) {
+                            continue;
+                        }
                     } else {
-                        bufferSquare.x = toroidCoordinate(square.x, i);
-                        bufferSquare.y = toroidCoordinate(square.y, j);
-                    }
-                    // If out of board then check the next square
-                    if (this.isClassic && (bufferSquare.x < 0 || bufferSquare.x > 7 || bufferSquare.y < 0 || bufferSquare.y > 7)) {
-                        continue;
+                        bufferSquare.toroidShiftBy(shift);
                     }
                     // If the neighbour square was marked as unoccupied (this.map == 0) then mark it as permitted for a move
                     if (this.map[bufferSquare.y][bufferSquare.x] == 0) {
@@ -151,19 +169,11 @@ class Map {
     calculateGain(square, player) {
         let output = [];
         for (let i = 0; i < 8; i++) {
-            let dir = CompassEnum.basis[i];
-            let bufferSquare = Object.assign({}, square); // Initialize the square to be tested for 1 particular direction.
+            let dir = new Vector(CompassEnum.basis[i].dy, CompassEnum.basis[i].dx);
+            let bufferSquare = new Square (square.y, square.x);
             for (let j = 1; j < 8; j++) {
                 if (this.isClassic) { // if the map to be updates is classic
-                    bufferSquare.y += dir.dy;
-                    // if the terminal square is out of board vertically then gain in this direction is 0
-                    if (bufferSquare.y < 0 || bufferSquare.y > 7) {
-                        output.push(0);
-                        break;
-                    }
-                    bufferSquare.x += dir.dx;
-                    // if the terminal square is out of board horizontally then gain in this direction is 0
-                    if (bufferSquare.x < 0 || bufferSquare.x > 7) {
+                    if(!bufferSquare.classicShiftBy(dir)) {
                         output.push(0);
                         break;
                     }
@@ -178,8 +188,7 @@ class Map {
                         break;
                     }
                 } else { // if the map to be updates is toroid
-                    bufferSquare.y = toroidCoordinate(bufferSquare.y, dir.dy);
-                    bufferSquare.x = toroidCoordinate(bufferSquare.x, dir.dx);
+                    bufferSquare.toroidShiftBy(dir);
                     // if the terminal square is empty then gain in this direction is 0
                     if (this.map[bufferSquare.y][bufferSquare.x] == 0) {
                         output.push(0);
@@ -451,7 +460,7 @@ function potentialAiMove() {
 
 // Function reads a coordinate ("inputAxis": "x" or "y") of a square from the square's list of classes ("inputClasses").
 function readCoordinates(inputClasses) {
-    let output = {};
+    let output = new Square(0, 0);
     for (let i of inputClasses) {
         if (i.length == 2) {
             let inputAxis = i[0];
@@ -497,11 +506,6 @@ function setNewName(newName, playerNumber) {
     }
 
     status.name[playerNumber] = newName; //set the new name
-}
-
-// Function calculates a coordinate on toroid if the initial coordinate is "c0" and the coordinate shift is "dC".
-function toroidCoordinate(c0, dC) {
-    return (c0 + dC + 8) % 8;
 }
 
 // Function passes the move to the opposite player, or gives the current player the right to move again, or finishes the game.
