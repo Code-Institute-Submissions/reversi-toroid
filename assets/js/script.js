@@ -46,16 +46,25 @@ if (Object.freeze) {
 
 // The main data object with constants and main variables.
 let status = {
-    playerIsHuman: [false, true, true,], //[unused, player 1 is human (true/false), player 2 is human (true/false)]
-    name: ["", "Player1", "Player2",], //[unused, name of player 1, name of player 2]
-    player: 0, //current player to move: 0 - empty, 1 - black, 2 - white
-    aiPlayerLevel: 0, //AI level; must be either 1, or 2, or 3, or 4; level 0 is default for no AI player
+    players: { // An object for players.
+        isHuman: [],
+        name: [],
+    },
     maps: { // An object for maps.
         current: {},
         permitted: {},
     },
     scoreBoard: {}, // An object for the score board.
+    player: 0, //current player to move: 0 - empty, 1 - black, 2 - white
+    aiPlayerLevel: 0, //AI level; must be either 1, or 2, or 3, or 4; level 0 is default for no AI player
 };
+
+class Players {
+    constructor() {
+        this.isHuman = [false, true, true]; //[unused, player 1 is human (true/false), player 2 is human (true/false)]
+        this.name = ["", "Player1", "Player2"]; //[unused, name of player 1, name of player 2]
+    }
+}
 
 class Square {
     constructor(y, x) {
@@ -237,7 +246,7 @@ class ScoreBoard {
     display() { // Function displays the current score.
         for (let i = 1; i < 3; i++) {
             $(`#player${i} > .score`).text(this.score[i]);
-            $(`#player${i} > .name`).text(status.name[i]);
+            $(`#player${i} > .name`).text(status.players.name[i]);
         }
     }
 
@@ -262,7 +271,7 @@ let message = {
     html: "#message-content", //selector for the message section
 
     update() { // Function updates the message when current player (status.player) clicks on square, or a name is changed, or the game is over.
-        $(this.html).html(`Move of ${status.name[status.player]} (${PlayerColorEnum.color[status.player]})`);
+        $(this.html).html(`Move of ${status.players.name[status.player]} (${PlayerColorEnum.color[status.player]})`);
         $(this.html).removeClass("font-white");
         $(this.html).removeClass("font-black");
         $(this.html).addClass("font-" + PlayerColorEnum.color[status.player]);
@@ -275,10 +284,10 @@ let message = {
     gameResult() {
         let winMessage = "DRAW";
         if (status.scoreBoard.player1Wins()) {
-            winMessage = `${status.name[1]} (${PlayerColorEnum.color[1]}) WON!!!`;
+            winMessage = `${status.players.name[1]} (${PlayerColorEnum.color[1]}) WON!!!`;
         }
         if (status.scoreBoard.player2Wins()) {
-            winMessage = `${status.name[2]} (${PlayerColorEnum.color[2]}) WON!!!`;
+            winMessage = `${status.players.name[2]} (${PlayerColorEnum.color[2]}) WON!!!`;
         }
         $(this.html).html(winMessage);
     }
@@ -296,6 +305,7 @@ $(document).ready(function () {
     // React to choosing the "classic" version of Reversi.
     $("#start-classic").click(function () {
         $("#play > h3").text("Classic Reversi");
+        status.players = new Players();
         status.maps.current = new Map(true, "current");
         status.maps.permitted = new Map(true, "permitted");
         status.scoreBoard = new ScoreBoard();
@@ -305,6 +315,7 @@ $(document).ready(function () {
     // React to choosing the "toroid" version of Reversi .
     $("#start-toroid").click(function () {
         $("#play > h3").text("Reversi-on-Toroid");
+        status.players = new Players();
         status.maps.current = new Map(false, "current");
         status.maps.permitted = new Map(false, "permitted");
         status.scoreBoard = new ScoreBoard();
@@ -411,7 +422,7 @@ function initializeBoardAndScore() {
 
 // Function checks if the next player is AI, and if so makes it move.
 function potentialAiMove() {
-    if (status.playerIsHuman[status.player]) {
+    if (status.players.isHuman[status.player]) {
         return;
     } // The function will not be executed if the current player is human.
     let potentialY = [];
@@ -477,7 +488,7 @@ function readCoordinates(inputClasses) {
 }
 
 
-// Function sets a new name ("newName") and "playerIsHuman" flag (0 for an AI player, or 1 for a human player); returns -100 if there is a problem
+// Function sets a new name ("newName") and "players.isHuman" flag (0 for an AI player, or 1 for a human player); returns -100 if there is a problem
 function setNewName(newName, playerNumber) {
     // Analyze the entered new name. If the user tried to select an "AI-name" then comtrol that it is correct
     let opponentPlayerNumber = playerNumber % 2 + 1; //calculate the opponent player number
@@ -488,7 +499,7 @@ function setNewName(newName, playerNumber) {
             alert(`The AI level looks strange. It MUST be not lower than ${AiLevelEnum.MIN} and no higher than ${AiLevelEnum.MAX}.`);
             return -100;
         }
-        if (!status.playerIsHuman[opponentPlayerNumber]) { // if the user tries to switch both players to AI
+        if (!status.players.isHuman[opponentPlayerNumber]) { // if the user tries to switch both players to AI
             alert("At present there MUST be at least 1 HUMAN player");
             return -100;
         } else {
@@ -497,15 +508,15 @@ function setNewName(newName, playerNumber) {
                 alert(`At present minimal AI level is ${AiLevelEnum.MIN} and maximal is ${AiLevelEnum.MAX}. While you try to set it to ${newAiPlayerLevel}.`);
                 return -100;
             } else { // the new name is a correct "AI-name"
-                status.playerIsHuman[playerNumber] = false;
+                status.players.isHuman[playerNumber] = false;
                 status.aiPlayerLevel = newAiPlayerLevel;
             }
         }
     } else { // the new name is a "human" name
-        status.playerIsHuman[playerNumber] = true;
+        status.players.isHuman[playerNumber] = true;
     }
 
-    status.name[playerNumber] = newName; //set the new name
+    status.players.name[playerNumber] = newName; //set the new name
 }
 
 // Function passes the move to the opposite player, or gives the current player the right to move again, or finishes the game.
