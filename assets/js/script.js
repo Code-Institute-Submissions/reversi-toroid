@@ -74,7 +74,7 @@ class Square {
     classicShiftBy(shift) { // Function shifts coordinates of a square "this" on the classic board by a vector "shift". Returns false if square is out of the board.
         this.y = this.y + shift.dy;
         this.x = this.x + shift.dx;
-        if (this.y < 0 || this.y > 7 || this.x < 0 || this.y > 7) {
+        if (this.y < 0 || this.y > 7 || this.x < 0 || this.x > 7) {
             return false;
         } else {
             return true;
