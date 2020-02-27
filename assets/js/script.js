@@ -62,6 +62,14 @@ class Square {
         this.y = y;
         this.x = x;
     }
+
+    setNewColor(newColor) { // Function sets the color of a "square" to "newColor" ("black" or "white").
+        let selector = `.y${this.y}.x${this.x}`;
+        $(selector).removeClass("bg-white");
+        $(selector).removeClass("bg-black");
+        $(selector).removeClass("bg-green");
+        $(selector).addClass("bg-" + newColor);
+    }
 }
 
 class Map {
@@ -195,7 +203,9 @@ class Map {
     updateGameBoard() { // Function updates colors on the board according to "status.maps.current".
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
-                setNewColor(new Square(i, j), PlayerColorEnum.color[this.map[i][j]]);
+                let bufferSquare = new Square(i, j);
+                let newColor = PlayerColorEnum.color[this.map[i][j]];
+                bufferSquare.setNewColor(newColor);
             }
         }
     }
@@ -322,7 +332,7 @@ $(document).ready(function () {
         status.scoreBoard.updateScore(); // Update score.
         status.scoreBoard.display(); // Display the current score.
 
-        updatePlayer(); // Pass move to the opposite player.
+        makeNextMove(); // Pass move to the opposite player.
     });
 
 });
@@ -373,7 +383,7 @@ function chooseNewName(clickedScore) {
         // If the name of the current player is changed then pretend that the current is opponent and force update the current player (to make it move). 
         if (playerNumber == status.player) {
             status.player = status.player % 2 + 1;
-            updatePlayer();
+            makeNextMove();
         }
     });
 }
@@ -382,7 +392,7 @@ function chooseNewName(clickedScore) {
 // Function initializes the board, score, and player message.
 function initializeBoardAndScore() {
     status.player = 2; // Pretend that the current player is 2 (the next one must be 1).
-    updatePlayer();
+    makeNextMove();
     status.maps.current.updateGameBoard();
     $("#welcome").hide();
     $("#play").show();
@@ -436,7 +446,7 @@ function potentialAiMove() {
     status.scoreBoard.updateScore(); // Update score.
     status.scoreBoard.display(); // Display the current score.
 
-    updatePlayer(); // Pass move to the opposite player.
+    makeNextMove(); // Pass move to the opposite player.
 }
 
 // Function reads a coordinate ("inputAxis": "x" or "y") of a square from the square's list of classes ("inputClasses").
@@ -457,14 +467,6 @@ function readCoordinates(inputClasses) {
     return output;
 }
 
-// Function sets the color of a "square" to "newColor" ("black" or "white").
-function setNewColor(square, newColor) {
-    let selector = `.y${square.y}.x${square.x}`;
-    $(selector).removeClass("bg-white");
-    $(selector).removeClass("bg-black");
-    $(selector).removeClass("bg-green");
-    $(selector).addClass("bg-" + newColor);
-}
 
 // Function sets a new name ("newName") and "playerIsHuman" flag (0 for an AI player, or 1 for a human player); returns -100 if there is a problem
 function setNewName(newName, playerNumber) {
@@ -503,7 +505,7 @@ function toroidCoordinate(c0, dC) {
 }
 
 // Function passes the move to the opposite player, or gives the current player the right to move again, or finishes the game.
-function updatePlayer() {
+function makeNextMove() {
     let opponentPlayerCanMove = checkIfPlayerCanMove(status.player % 2 + 1);
     if (opponentPlayerCanMove) { // if the opponent player can move
         status.player = status.player % 2 + 1;
