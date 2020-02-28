@@ -36,7 +36,6 @@ const AiLevelEnum = {
     MAX: 2, //maximal AI level
 };
 
-
 if (Object.freeze) {
     Object.freeze(CompassEnum);
     Object.freeze(PlayerColorEnum);
@@ -64,6 +63,37 @@ class Players {
         this.isHuman = [false, true, true]; //[unused, player 1 is human (true/false), player 2 is human (true/false)]
         this.name = ["", "Player1", "Player2"]; //[unused, name of player 1, name of player 2]
     }
+
+    // Function sets a new name ("newName") and "players.isHuman" flag (0 for an AI player, or 1 for a human player); returns -100 if there is a problem
+    setNewName(newName, playerNumber) {
+    // Analyze the entered new name. If the user tried to select an "AI-name" then comtrol that it is correct
+    let opponentPlayerNumber = playerNumber % 2 + 1; //calculate the opponent player number
+    let newNameStartsWith = newName.slice(0, 10);
+    let newNameEndsWith = newName.slice(11, 12);
+    if (newNameStartsWith == "AI (level ") { // if the new name starts as a correct "AI-name"
+        if (newNameEndsWith != ')') { // if the new name starts as a correct "AI-name" but doesn't end as one
+            alert(`The AI level looks strange. It MUST be not lower than ${AiLevelEnum.MIN} and no higher than ${AiLevelEnum.MAX}.`);
+            return -100;
+        }
+        if (!this.isHuman[opponentPlayerNumber]) { // if the user tries to switch both players to AI
+            alert("At present there MUST be at least 1 HUMAN player");
+            return -100;
+        } else {
+            let newAiPlayerLevel = newName.charCodeAt(10) - 48;
+            if (newAiPlayerLevel < AiLevelEnum.MIN || newAiPlayerLevel > AiLevelEnum.MAX) { // if the chosen AI level is not supported yet
+                alert(`At present minimal AI level is ${AiLevelEnum.MIN} and maximal is ${AiLevelEnum.MAX}. While you try to set it to ${newAiPlayerLevel}.`);
+                return -100;
+            } else { // the new name is a correct "AI-name"
+                this.isHuman[playerNumber] = false;
+                status.aiPlayerLevel = newAiPlayerLevel;
+            }
+        }
+    } else { // the new name is a "human" name
+        this.isHuman[playerNumber] = true;
+    }
+
+    this.name[playerNumber] = newName; //set the new name
+}
 }
 
 class Square {
@@ -394,7 +424,7 @@ function chooseNewName(clickedScore) {
     // Save the new name and restore current message
     $(`#${okButtonId}`).click(function () {
         let newName = $(`#${inputFieldId}`).val();
-        if (setNewName(newName, playerNumber) == -100) { // If something went wrong, exit the function without doing anything.
+        if (status.players.setNewName(newName, playerNumber) == -100) { // If something went wrong, exit the function without doing anything.
             return;
         };
         status.scoreBoard.display();
@@ -489,7 +519,7 @@ function readCoordinates(inputClasses) {
 
 
 // Function sets a new name ("newName") and "players.isHuman" flag (0 for an AI player, or 1 for a human player); returns -100 if there is a problem
-function setNewName(newName, playerNumber) {
+/*function setNewName(newName, playerNumber) {
     // Analyze the entered new name. If the user tried to select an "AI-name" then comtrol that it is correct
     let opponentPlayerNumber = playerNumber % 2 + 1; //calculate the opponent player number
     let newNameStartsWith = newName.slice(0, 10);
@@ -518,6 +548,7 @@ function setNewName(newName, playerNumber) {
 
     status.players.name[playerNumber] = newName; //set the new name
 }
+*/
 
 // Function passes the move to the opposite player, or gives the current player the right to move again, or finishes the game.
 function makeNextMove() {
