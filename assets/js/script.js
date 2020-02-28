@@ -60,6 +60,37 @@ class Players {
         this.aiPlayerLevel = 0; //AI level; must be either 1, or 2, or 3, or 4; level 0 is default for no AI player
     }
 
+    // Function checks if "player" can move.
+    canPlayerMove(player) {
+        switch (player) {
+            case "current":
+                player = this.current;
+                break;
+            case "opponent":
+                player = opponent(this.current);
+                break;
+            default:
+                alert("There is a mistake in your code!!!");
+        }
+
+        let reply = false;
+        for (let i = 0; i < 8; i++) {
+            if (reply) {
+                break;
+            }
+            for (let j = 0; j < 8; j++) {
+                if (status.maps.permitted.map[i][j] != 1) {
+                    continue;
+                }
+                if (status.maps.current.calculateGain(new Square(i, j), player) > 0) {
+                    reply = true;
+                    break;
+                }
+            }
+        }
+        return reply;
+    }
+
     passMove() {
         this.current = opponent(this.current);
     }
@@ -67,7 +98,7 @@ class Players {
     getCurrentColor() {
         return PlayerColorEnum.color[this.current];
     }
-    
+
     // Function sets a new name ("newName") and "players.isHuman" flag (0 for an AI player, or 1 for a human player); returns -100 if there is a problem
     setNewName(newName, playerNumber) {
         // Analyze the entered new name. If the user tried to select an "AI-name" then comtrol that it is correct
@@ -343,11 +374,11 @@ $(document).ready(function () {
         status.maps.current = new Map(true, "current");
         status.maps.permitted = new Map(true, "permitted");
         status.scoreBoard = new ScoreBoard();
-    $("#welcome").hide();
-    $("#play").show();
-    status.scoreBoard.display();
+        $("#welcome").hide();
+        $("#play").show();
+        status.scoreBoard.display();
         makeNextMove();
-    status.maps.current.updateGameBoard();
+        status.maps.current.updateGameBoard();
 
     });
 
@@ -358,11 +389,11 @@ $(document).ready(function () {
         status.maps.current = new Map(false, "current");
         status.maps.permitted = new Map(false, "permitted");
         status.scoreBoard = new ScoreBoard();
-    $("#welcome").hide();
-    $("#play").show();
-    status.scoreBoard.display();
+        $("#welcome").hide();
+        $("#play").show();
+        status.scoreBoard.display();
         makeNextMove();
-    status.maps.current.updateGameBoard();
+        status.maps.current.updateGameBoard();
 
     });
 
@@ -400,27 +431,6 @@ $(document).ready(function () {
     });
 
 });
-
-
-// Function checks if "player" can move.
-function checkIfPlayerCanMove(player) {
-    let reply = false;
-    for (let i = 0; i < 8; i++) {
-        if (reply) {
-            break;
-        }
-        for (let j = 0; j < 8; j++) {
-            if (status.maps.permitted.map[i][j] != 1) {
-                continue;
-            }
-            if (status.maps.current.calculateGain(new Square(i, j), player) > 0) {
-                reply = true;
-                break;
-            }
-        }
-    }
-    return reply;
-}
 
 // Functions allows to change a player's name.
 function chooseNewName(clickedScore) {
@@ -502,6 +512,31 @@ function potentialAiMove() {
     makeNextMove(); // Pass move to the opposite player.
 }
 
+
+
+
+// Function passes the move to the opposite player, or gives the current player the right to move again, or finishes the game.
+function makeNextMove() {
+    let opponentPlayerCanMove = status.players.canPlayerMove("opponent");
+    if (opponentPlayerCanMove) { // if the opponent player can move
+        status.players.passMove();
+        message.update();
+        potentialAiMove();
+    } else {
+        let currentPlayerCanMove = status.players.canPlayerMove("current");
+        if (currentPlayerCanMove) { // if the opponent player cannot move but the current player can move again
+            message.moveAgain();
+            potentialAiMove();
+        } else {
+            message.gameResult();
+        } // if neither player can move then display the game result message
+    }
+}
+
+function opponent(player) {
+    return player % 2 + 1;
+}
+
 // Function reads a coordinate ("inputAxis": "x" or "y") of a square from the square's list of classes ("inputClasses").
 function readCoordinates(inputClasses) {
     let output = new Square(0, 0);
@@ -516,29 +551,5 @@ function readCoordinates(inputClasses) {
             }
         }
     }
-
     return output;
-}
-
-
-// Function passes the move to the opposite player, or gives the current player the right to move again, or finishes the game.
-function makeNextMove() {
-    let opponentPlayerCanMove = checkIfPlayerCanMove(opponent(status.players.current));
-    if (opponentPlayerCanMove) { // if the opponent player can move
-        status.players.passMove();
-        message.update();
-        potentialAiMove();
-    } else {
-        let currentPlayerCanMove = checkIfPlayerCanMove(status.players.current);
-        if (currentPlayerCanMove) { // if the opponent player cannot move but the current player can move again
-            message.moveAgain();
-            potentialAiMove();
-        } else {
-            message.gameResult();
-        } // if neither player can move then display the game result message
-    }
-}
-
-function opponent(player) {
-    return player % 2 + 1;
 }
