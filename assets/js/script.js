@@ -48,6 +48,7 @@ let status = {
     players: {},
     maps: {},
     scoreBoard: {},
+    message: {},
 };
 
 class Players {
@@ -264,7 +265,8 @@ class Maps {
         this.permitted = new Map(isClassic, "permitted");
     }
 
-    updateGameBoard() { // Function updates colors on the board according to "status.maps.current".
+    // Function updates colors on the board according to "this.current.map".
+    updateGameBoard() {
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
                 let bufferSquare = new Square(i, j);
@@ -332,19 +334,21 @@ class ScoreBoard {
 };
 
 // An object for the message section (below the score board) that displays various messages.
-let message = {
-    html: "#message-content", //selector for the message section
+class Message {
+    constructor() {
+        this.html = "#message-content"; //selector for the message section
+    }
 
     update() { // Function updates the message when current player (status.players.current) clicks on square, or a name is changed, or the game is over.
         $(this.html).html(`Move of ${status.players.name[status.players.current]} (${status.players.getCurrentColor()})`);
         $(this.html).removeClass("font-white");
         $(this.html).removeClass("font-black");
         $(this.html).addClass("font-" + status.players.getCurrentColor());
-    },
+    }
 
     moveAgain() {
         $(this.html).html(`Move of Player${status.players.current} (${status.players.getCurrentColor()}) again!`);
-    },
+    }
 
     gameResult() {
         let winMessage = "DRAW";
@@ -373,6 +377,7 @@ $(document).ready(function () {
         status.players = new Players();
         status.maps = new Maps(true);
         status.scoreBoard = new ScoreBoard();
+        status.message = new Message();
         $("#welcome").hide();
         $("#play").show();
         status.scoreBoard.display(status.players.name);
@@ -387,6 +392,7 @@ $(document).ready(function () {
         status.players = new Players();
         status.maps = new Maps(false);
         status.scoreBoard = new ScoreBoard();
+        status.message = new Message();
         $("#welcome").hide();
         $("#play").show();
         status.scoreBoard.display(status.players.name);
@@ -433,13 +439,13 @@ function chooseNewName(clickedScore) {
     const inputFieldId = "new-name"; //id for the input element to type a new name
     const okButtonId = "name-ok"; //id for the OK button
 
-    let messageBuffer = $(message.html).html(); // Save current message to restore it after setting a new name.
+    let messageBuffer = $(status.message.html).html(); // Save current message to restore it after setting a new name.
 
     // Find out which score was clicked and thus which name should be changed.
     let elementId = $(clickedScore).attr("id");
     let player = parseInt(elementId[elementId.length - 1]);
     let inputHtml = `<span>Enter new name for Player ${player}: </span><input id="${inputFieldId}" type="text" value="AI (level 2)" size="12"><button id="${okButtonId}">OK</button>`;
-    $(message.html).html(inputHtml);
+    $(status.message.html).html(inputHtml);
 
     // When "OK" is clicked.
     $(`#${okButtonId}`).click(function () {
@@ -449,8 +455,8 @@ function chooseNewName(clickedScore) {
             return; // If something went wrong, exit the function without doing anything.
         };
         // Restore the message about the player to move.
-        $(message.html).html(messageBuffer);
-        message.update();
+        $(status.message.html).html(messageBuffer);
+        status.message.update();
         // Save the new name and restore current message
         status.scoreBoard.display(status.players.name);
         // If the name of the current player is changed then make the player move by: passing the move to opponent and making the next move. 
@@ -519,17 +525,17 @@ function makeNextMove() {
     //let opponentPlayerCanMove = status.players.canPlayerMove("opponent");
     if (opponentPlayerCanMove) { // if the opponent player can move
         status.players.passMove();
-        message.update();
+        status.message.update();
         potentialAiMove();
     } else {
         let nextPlayer = status.players.current;
         let currentPlayerCanMove = status.maps.canPlayerMove(nextPlayer);
         //let currentPlayerCanMove = status.players.canPlayerMove("current");
         if (currentPlayerCanMove) { // if the opponent player cannot move but the current player can move again
-            message.moveAgain();
+            status.message.moveAgain();
             potentialAiMove();
         } else {
-            message.gameResult();
+            status.message.gameResult();
         } // if neither player can move then display the game result message
     }
 }
