@@ -40,6 +40,7 @@ const IdEnum = {
     inputFieldId: "new-name", //id for the input element to type a new name
     okButtonId: "name-ok", //id for the OK button
 }
+
 if (Object.freeze) {
     Object.freeze(CompassEnum);
     Object.freeze(PlayerColorEnum);
