@@ -36,20 +36,26 @@ const AiLevelEnum = {
     MAX: 2, //maximal AI level
 };
 
+const IdEnum = {
+    inputFieldId: "new-name", //id for the input element to type a new name
+    okButtonId: "name-ok", //id for the OK button
+}
 if (Object.freeze) {
     Object.freeze(CompassEnum);
     Object.freeze(PlayerColorEnum);
     Object.freeze(AiLevelEnum);
+    Object.freeze(IdEnum);
 }
 
 
 // The main data object with constants and main variables.
-let status = {
+/*let status = {
     players: {},
     maps: {},
     scoreBoard: {},
     message: {},
-};
+};*/
+
 
 class Players {
     constructor() {
@@ -67,13 +73,13 @@ class Players {
         return PlayerColorEnum.color[this.current];
     }
 
-    // Function sets "name[player]" to "newName" and "isHuman" to "false" for an AI player, or "true" for a human player; returns "false" if there is a problem
-    setNewName(newName, player) {
+    // Function sets "name[player]" to "name" and "isHuman" to "false" for an AI player, or "true" for a human player; returns "false" if there is a problem
+    setNewName(name, player) {
         // Analyze the entered new name. If the user tried to select an "AI-name" then comtrol that it is correct
-        let newNameStartsWith = newName.slice(0, 10);
+        let newNameStartsWith = name.slice(0, 10);
         // Check whether the new name starts as a correct "AI-name": "AI (level ".
         if (newNameStartsWith == "AI (level ") {
-            let newNameEndsWith = newName.slice(11, 12);
+            let newNameEndsWith = name.slice(11, 12);
             // Display an alert if the new name starts as a correct "AI-name" but doesn't end as one.
             if (newNameEndsWith != ')') {
                 alert(`The AI level looks strange. It MUST be not lower than ${AiLevelEnum.MIN} and no higher than ${AiLevelEnum.MAX}.`);
@@ -84,7 +90,7 @@ class Players {
                 alert("At present there MUST be at least 1 HUMAN player");
                 return false;
             } else {
-                let newAiLevel = newName.charCodeAt(10) - 48;
+                let newAiLevel = name.charCodeAt(10) - 48;
                 // Display an alert if the chosen AI level is not supported yet.
                 if (newAiLevel < AiLevelEnum.MIN || newAiLevel > AiLevelEnum.MAX) {
                     alert(`At present minimal AI level is ${AiLevelEnum.MIN} and maximal is ${AiLevelEnum.MAX}. While you try to set it to ${newAiLevel}.`);
@@ -98,7 +104,7 @@ class Players {
             this.isHuman[player] = true;
         }
         // Set the new name.
-        this.name[player] = newName;
+        this.name[player] = name;
         // Everything is OK.
         return true;
     }
@@ -363,6 +369,57 @@ class Message {
 };
 
 
+class Game {
+    constructor(isClassic) {
+        this.players = new Players();
+        this.maps = new Maps(isClassic);
+        this.scoreBoard = new ScoreBoard();
+        this.message = new Message();
+    }
+
+    // Functions allows to change a player's name.
+    chooseNewName(clickedScore) {
+        // Create short names for 3 objects.
+        let players = this.players;
+        let message = this.message;
+        let scoreBoard = this.scoreBoard;
+
+        // Save current message to restore it after setting a new name.
+        let messageBuffer = $(message.html).html(); 
+
+        // Find out which score was clicked and thus which name should be changed.
+        let elementId = $(clickedScore).attr("id");
+        let player = parseInt(elementId[elementId.length - 1]);
+        let inputHtml1 = `<span>Enter new name for Player ${player}: </span>`;
+        let inputHtml2 =`<input id="${IdEnum.inputFieldId}" type="text" value="AI (level 2)" size="12">`;
+        let inputHtml3 = `<button id="${IdEnum.okButtonId}">OK</button>`;
+        $(message.html).html(inputHtml1 + inputHtml2 + inputHtml3);
+
+        // When "OK" is clicked.
+        $(`#${IdEnum.okButtonId}`).click(function () {
+            // Try to save the new name.
+            let newName = $(`#${IdEnum.inputFieldId}`).val();
+            if (!players.setNewName(newName, player)) {
+                return; // If something went wrong, exit the function without doing anything.
+            };
+            // Restore the message about the player to move.
+            $(message.html).html(messageBuffer);
+            message.update();
+            // Save the new name and restore current message
+            scoreBoard.display(players.name);
+            // If the name of the current player is changed then make the player move by: passing the move to opponent and making the next move. 
+            if (player == players.current) {
+                //this.players.passMove();
+                players.passMove();
+                makeNextMove();
+            }
+        });
+    }
+
+}
+
+let status = {};
+
 $(document).ready(function () {
 
     // React to clicking the "Restart" button (reset to original view).
@@ -374,10 +431,7 @@ $(document).ready(function () {
     // React to choosing the "classic" version of Reversi.
     $("#start-classic").click(function () {
         $("#play > h3").text("Classic Reversi");
-        status.players = new Players();
-        status.maps = new Maps(true);
-        status.scoreBoard = new ScoreBoard();
-        status.message = new Message();
+        status = new Game(true);
         $("#welcome").hide();
         $("#play").show();
         status.scoreBoard.display(status.players.name);
@@ -389,10 +443,7 @@ $(document).ready(function () {
     // React to choosing the "toroid" version of Reversi .
     $("#start-toroid").click(function () {
         $("#play > h3").text("Reversi-on-Toroid");
-        status.players = new Players();
-        status.maps = new Maps(false);
-        status.scoreBoard = new ScoreBoard();
-        status.message = new Message();
+        status = new Game(true);
         $("#welcome").hide();
         $("#play").show();
         status.scoreBoard.display(status.players.name);
@@ -403,7 +454,7 @@ $(document).ready(function () {
 
     // React to clicking the score frame of player 1 or 2 to change the player's name.
     $(".score-frame").click(function () {
-        chooseNewName(this);
+        status.chooseNewName(this);
     });
 
     // React to click on a square (a human move).
@@ -433,39 +484,6 @@ $(document).ready(function () {
     });
 
 });
-
-// Functions allows to change a player's name.
-function chooseNewName(clickedScore) {
-    const inputFieldId = "new-name"; //id for the input element to type a new name
-    const okButtonId = "name-ok"; //id for the OK button
-
-    let messageBuffer = $(status.message.html).html(); // Save current message to restore it after setting a new name.
-
-    // Find out which score was clicked and thus which name should be changed.
-    let elementId = $(clickedScore).attr("id");
-    let player = parseInt(elementId[elementId.length - 1]);
-    let inputHtml = `<span>Enter new name for Player ${player}: </span><input id="${inputFieldId}" type="text" value="AI (level 2)" size="12"><button id="${okButtonId}">OK</button>`;
-    $(status.message.html).html(inputHtml);
-
-    // When "OK" is clicked.
-    $(`#${okButtonId}`).click(function () {
-        // Try to save the new name.
-        let newName = $(`#${inputFieldId}`).val();
-        if (!status.players.setNewName(newName, player)) {
-            return; // If something went wrong, exit the function without doing anything.
-        };
-        // Restore the message about the player to move.
-        $(status.message.html).html(messageBuffer);
-        status.message.update();
-        // Save the new name and restore current message
-        status.scoreBoard.display(status.players.name);
-        // If the name of the current player is changed then make the player move by: passing the move to opponent and making the next move. 
-        if (player == status.players.current) {
-            status.players.passMove();
-            makeNextMove();
-        }
-    });
-}
 
 
 // Function checks if the next player is AI, and if so makes it move.
@@ -514,8 +532,6 @@ function potentialAiMove() {
     status.maps.updateGameBoard(); // Update colors on the board according to the move.
     makeNextMove(); // Pass move to the opposite player.
 }
-
-
 
 
 // Function passes the move to the opposite player, or gives the current player the right to move again, or finishes the game.
