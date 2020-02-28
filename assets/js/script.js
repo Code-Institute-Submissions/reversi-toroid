@@ -437,21 +437,24 @@ function chooseNewName(clickedScore) {
 
     // Find out which score was clicked and thus which name should be changed.
     let elementId = $(clickedScore).attr("id");
-    let lastIdSymbol = elementId[elementId.length - 1];
-    let playerNumber = parseInt(lastIdSymbol);
-    $(message.html).html(`<span>Enter new name for Player ${playerNumber}: </span><input id="${inputFieldId}" type="text" value="AI (level 2)" size="12"><button id="${okButtonId}">OK</button>`);
+    let player = parseInt(elementId[elementId.length - 1]);
+    let inputHtml = `<span>Enter new name for Player ${player}: </span><input id="${inputFieldId}" type="text" value="AI (level 2)" size="12"><button id="${okButtonId}">OK</button>`;
+    $(message.html).html(inputHtml);
 
-    // Save the new name and restore current message
+    // When "OK" is clicked.
     $(`#${okButtonId}`).click(function () {
+        // Try to save the new name.
         let newName = $(`#${inputFieldId}`).val();
-        if (!status.players.setNewName(newName, playerNumber)) { // If something went wrong, exit the function without doing anything.
-            return;
+        if (!status.players.setNewName(newName, player)) {
+            return; // If something went wrong, exit the function without doing anything.
         };
-        status.scoreBoard.display(status.players.name);
+        // Restore the message about the player to move.
         $(message.html).html(messageBuffer);
         message.update();
-        // If the name of the current player is changed then pretend that the current is opponent and force update the current player (to make it move). 
-        if (playerNumber == status.players.current) {
+        // Save the new name and restore current message
+        status.scoreBoard.display(status.players.name);
+        // If the name of the current player is changed then make the player move by: passing the move to opponent and making the next move. 
+        if (player == status.players.current) {
             status.players.passMove();
             makeNextMove();
         }
