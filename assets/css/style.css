@@ -231,6 +231,13 @@ Messages
     padding: 5px;
 }
 
+.font-black {
+    color: black;
+}
+
+.font-white {
+    color: white;
+}
 
 /*************************
 Footer

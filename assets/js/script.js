@@ -45,11 +45,9 @@ if (Object.freeze) {
 
 // The main data object with constants and main variables.
 let status = {
-    players: { // An object for players.
-    },
-    maps: { // An object for maps.
-    },
-    scoreBoard: {}, // An object for the score board.
+    players: {},
+    maps: {},
+    scoreBoard: {},
 };
 
 class Players {
@@ -57,38 +55,7 @@ class Players {
         this.isHuman = [false, true, true]; //[unused, player 1 is human (true/false), player 2 is human (true/false)]
         this.name = ["", "Player1", "Player2"]; //[unused, name of player 1, name of player 2]
         this.current = 0; //current player to move: 0 - empty, 1 - black, 2 - white
-        this.aiPlayerLevel = 0; //AI level; must be either 1, or 2, or 3, or 4; level 0 is default for no AI player
-    }
-
-    // Function checks if "player" can move.
-    canPlayerMove(player) {
-        switch (player) {
-            case "current":
-                player = this.current;
-                break;
-            case "opponent":
-                player = opponent(this.current);
-                break;
-            default:
-                alert("There is a mistake in your code!!!");
-        }
-
-        let reply = false;
-        for (let i = 0; i < 8; i++) {
-            if (reply) {
-                break;
-            }
-            for (let j = 0; j < 8; j++) {
-                if (status.maps.permitted.map[i][j] != 1) {
-                    continue;
-                }
-                if (status.maps.current.calculateGain(new Square(i, j), player) > 0) {
-                    reply = true;
-                    break;
-                }
-            }
-        }
-        return reply;
+        this.aiLevel = 0; //AI level; must be either 1, or 2, or 3, or 4; level 0 is default for no AI player
     }
 
     passMove() {
@@ -99,35 +66,40 @@ class Players {
         return PlayerColorEnum.color[this.current];
     }
 
-    // Function sets a new name ("newName") and "players.isHuman" flag (0 for an AI player, or 1 for a human player); returns -100 if there is a problem
-    setNewName(newName, playerNumber) {
+    // Function sets "name[player]" to "newName" and "isHuman" to "false" for an AI player, or "true" for a human player; returns "false" if there is a problem
+    setNewName(newName, player) {
         // Analyze the entered new name. If the user tried to select an "AI-name" then comtrol that it is correct
-        let opponentPlayerNumber = opponent(playerNumber); //calculate the opponent player number
         let newNameStartsWith = newName.slice(0, 10);
-        let newNameEndsWith = newName.slice(11, 12);
-        if (newNameStartsWith == "AI (level ") { // if the new name starts as a correct "AI-name"
-            if (newNameEndsWith != ')') { // if the new name starts as a correct "AI-name" but doesn't end as one
+        // Check whether the new name starts as a correct "AI-name": "AI (level ".
+        if (newNameStartsWith == "AI (level ") {
+            let newNameEndsWith = newName.slice(11, 12);
+            // Display an alert if the new name starts as a correct "AI-name" but doesn't end as one.
+            if (newNameEndsWith != ')') {
                 alert(`The AI level looks strange. It MUST be not lower than ${AiLevelEnum.MIN} and no higher than ${AiLevelEnum.MAX}.`);
-                return -100;
+                return false;
             }
-            if (!this.isHuman[opponentPlayerNumber]) { // if the user tries to switch both players to AI
+            // Display an alert if the user tries to switch both players to AI.
+            if (!this.isHuman[opponent(player)]) {
                 alert("At present there MUST be at least 1 HUMAN player");
-                return -100;
+                return false;
             } else {
-                let newAiPlayerLevel = newName.charCodeAt(10) - 48;
-                if (newAiPlayerLevel < AiLevelEnum.MIN || newAiPlayerLevel > AiLevelEnum.MAX) { // if the chosen AI level is not supported yet
-                    alert(`At present minimal AI level is ${AiLevelEnum.MIN} and maximal is ${AiLevelEnum.MAX}. While you try to set it to ${newAiPlayerLevel}.`);
-                    return -100;
-                } else { // the new name is a correct "AI-name"
-                    this.isHuman[playerNumber] = false;
-                    status.players.aiPlayerLevel = newAiPlayerLevel;
+                let newAiLevel = newName.charCodeAt(10) - 48;
+                // Display an alert if the chosen AI level is not supported yet.
+                if (newAiLevel < AiLevelEnum.MIN || newAiLevel > AiLevelEnum.MAX) {
+                    alert(`At present minimal AI level is ${AiLevelEnum.MIN} and maximal is ${AiLevelEnum.MAX}. While you try to set it to ${newAiLevel}.`);
+                    return false;
+                } else { // If the new name is a correct "AI-name"...
+                    this.isHuman[player] = false;
+                    this.aiLevel = newAiLevel;
                 }
             }
-        } else { // the new name is a "human" name
-            this.isHuman[playerNumber] = true;
+        } else { // If the new name is a "human" name...
+            this.isHuman[player] = true;
         }
-
-        this.name[playerNumber] = newName; //set the new name
+        // Set the new name.
+        this.name[player] = newName;
+        // Everything is OK.
+        return true;
     }
 }
 
@@ -149,8 +121,10 @@ class Square {
         this.y = this.y + shift.dy;
         this.x = this.x + shift.dx;
         if (this.y < 0 || this.y > 7 || this.x < 0 || this.x > 7) {
+            // Return a negative flag (the claculated square is out of board).
             return false;
         } else {
+            // Return a positive flag (the claculated square is within board).
             return true;
         }
     }
@@ -282,15 +256,42 @@ class Map {
 
         return this.totalPotentialGain;
     }
+}
+
+class Maps {
+    constructor(isClassic) {
+        this.current = new Map(isClassic, "current");
+        this.permitted = new Map(isClassic, "permitted");
+    }
 
     updateGameBoard() { // Function updates colors on the board according to "status.maps.current".
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
                 let bufferSquare = new Square(i, j);
-                let newColor = PlayerColorEnum.color[this.map[i][j]];
+                let newColor = PlayerColorEnum.color[this.current.map[i][j]];
                 bufferSquare.setNewColor(newColor);
             }
         }
+    }
+
+    // Function checks if "player" can move.
+    canPlayerMove(player) {
+        let reply = false;
+        for (let i = 0; i < 8; i++) {
+            if (reply) {
+                break;
+            }
+            for (let j = 0; j < 8; j++) {
+                if (this.permitted.map[i][j] != 1) {
+                    continue;
+                }
+                if (this.current.calculateGain(new Square(i, j), player) > 0) {
+                    reply = true;
+                    break;
+                }
+            }
+        }
+        return reply;
     }
 }
 
@@ -308,23 +309,22 @@ class ScoreBoard {
         return this.score[1] < this.score[2];
     }
 
-    display() { // Function displays the current score.
+    display(name) { // Function displays the current score.
         for (let i = 1; i < 3; i++) {
             $(`#player${i} > .score`).text(this.score[i]);
-            $(`#player${i} > .name`).text(status.players.name[i]);
+            $(`#player${i} > .name`).text(name[i]);
         }
     }
 
-    updateScore() { // Function updates the score.
-        let changeScoreBy = status.maps.current.totalPotentialGain;
+    updateScore(change) { // Function updates the score.
         switch (status.players.current) {
             case 1:
-                this.score[1] += changeScoreBy + 1;
-                this.score[2] -= changeScoreBy;
+                this.score[1] += change + 1;
+                this.score[2] -= change;
                 break;
             case 2:
-                this.score[2] += changeScoreBy + 1;
-                this.score[1] -= changeScoreBy;
+                this.score[2] += change + 1;
+                this.score[1] -= change;
                 break;
         }
     }
@@ -371,14 +371,13 @@ $(document).ready(function () {
     $("#start-classic").click(function () {
         $("#play > h3").text("Classic Reversi");
         status.players = new Players();
-        status.maps.current = new Map(true, "current");
-        status.maps.permitted = new Map(true, "permitted");
+        status.maps = new Maps(true);
         status.scoreBoard = new ScoreBoard();
         $("#welcome").hide();
         $("#play").show();
-        status.scoreBoard.display();
+        status.scoreBoard.display(status.players.name);
         makeNextMove();
-        status.maps.current.updateGameBoard();
+        status.maps.updateGameBoard();
 
     });
 
@@ -386,14 +385,13 @@ $(document).ready(function () {
     $("#start-toroid").click(function () {
         $("#play > h3").text("Reversi-on-Toroid");
         status.players = new Players();
-        status.maps.current = new Map(false, "current");
-        status.maps.permitted = new Map(false, "permitted");
+        status.maps = new Maps(false);
         status.scoreBoard = new ScoreBoard();
         $("#welcome").hide();
         $("#play").show();
-        status.scoreBoard.display();
+        status.scoreBoard.display(status.players.name);
         makeNextMove();
-        status.maps.current.updateGameBoard();
+        status.maps.updateGameBoard();
 
     });
 
@@ -415,18 +413,16 @@ $(document).ready(function () {
         }
 
         // Calculate gain in all 8 possible directions for clickedSquare clicked by current player (status.players.current) and check that the move is valid.
-        if (status.maps.current.calculateGain(clickedSquare, status.players.current) == 0) {
+        let scoreChange = status.maps.current.calculateGain(clickedSquare, status.players.current);
+        if (scoreChange == 0) {
             alert("Not a valid move! You MUST capture/flip AT LEAST 1 opponent square!!!"); // ... if not, show an alert and do not react.
             return;
         }
-
+        status.scoreBoard.updateScore(scoreChange); // Update score.
+        status.scoreBoard.display(status.players.name); // Display the current score.
         status.maps.current.updateMap(clickedSquare, status.players.current); // Update "status.maps.current".
         status.maps.permitted.updateMap(clickedSquare, status.players.current);  // Update "status.maps.permitted".
-        status.maps.current.updateGameBoard(); // Update colors on the board according to the move.
-
-        status.scoreBoard.updateScore(); // Update score.
-        status.scoreBoard.display(); // Display the current score.
-
+        status.maps.updateGameBoard(); // Update colors on the board according to the move.
         makeNextMove(); // Pass move to the opposite player.
     });
 
@@ -448,10 +444,10 @@ function chooseNewName(clickedScore) {
     // Save the new name and restore current message
     $(`#${okButtonId}`).click(function () {
         let newName = $(`#${inputFieldId}`).val();
-        if (status.players.setNewName(newName, playerNumber) == -100) { // If something went wrong, exit the function without doing anything.
+        if (!status.players.setNewName(newName, playerNumber)) { // If something went wrong, exit the function without doing anything.
             return;
         };
-        status.scoreBoard.display();
+        status.scoreBoard.display(status.players.name);
         $(message.html).html(messageBuffer);
         message.update();
         // If the name of the current player is changed then pretend that the current is opponent and force update the current player (to make it move). 
@@ -480,8 +476,8 @@ function potentialAiMove() {
             }
         }
     }
-    // If "aiPlayerLevel" is at 2 then consider only moves with maximal gain.
-    if (status.players.aiPlayerLevel == 2) {
+    // If "aiLevel" is at 2 then consider only moves with maximal gain.
+    if (status.players.aiLevel == 2) {
         let maxGain = bufferGain.reduce(function (a, b) {
             return Math.max(a, b);
         }); // Find the maximal possible gain.
@@ -501,14 +497,12 @@ function potentialAiMove() {
     // Set a square that AI "clicked".
     let clickedSquare = new Square(potentialY[randomIndex], potentialX[randomIndex]);
 
-    status.maps.current.calculateGain(clickedSquare, status.players.current); // Calculate potential gains in all 8 possible directions for "clickedSquare" clicked by the current player ("status.players.current").
+    let scoreChange = status.maps.current.calculateGain(clickedSquare, status.players.current); // Calculate potential gains in all 8 possible directions for "clickedSquare" clicked by the current player ("status.players.current").
+    status.scoreBoard.updateScore(scoreChange); // Update score.
+    status.scoreBoard.display(status.players.name); // Display the current score.
     status.maps.current.updateMap(clickedSquare, status.players.current);  // Update "status.maps.current".
     status.maps.permitted.updateMap(clickedSquare, status.players.current); // Update "status.maps.permitted".
-    status.maps.current.updateGameBoard(); // Update colors on the board according to the move.
-
-    status.scoreBoard.updateScore(); // Update score.
-    status.scoreBoard.display(); // Display the current score.
-
+    status.maps.updateGameBoard(); // Update colors on the board according to the move.
     makeNextMove(); // Pass move to the opposite player.
 }
 
@@ -517,13 +511,17 @@ function potentialAiMove() {
 
 // Function passes the move to the opposite player, or gives the current player the right to move again, or finishes the game.
 function makeNextMove() {
-    let opponentPlayerCanMove = status.players.canPlayerMove("opponent");
+    let nextPlayer = opponent(status.players.current);
+    let opponentPlayerCanMove = status.maps.canPlayerMove(nextPlayer);
+    //let opponentPlayerCanMove = status.players.canPlayerMove("opponent");
     if (opponentPlayerCanMove) { // if the opponent player can move
         status.players.passMove();
         message.update();
         potentialAiMove();
     } else {
-        let currentPlayerCanMove = status.players.canPlayerMove("current");
+        let nextPlayer = status.players.current;
+        let currentPlayerCanMove = status.maps.canPlayerMove(nextPlayer);
+        //let currentPlayerCanMove = status.players.canPlayerMove("current");
         if (currentPlayerCanMove) { // if the opponent player cannot move but the current player can move again
             message.moveAgain();
             potentialAiMove();
