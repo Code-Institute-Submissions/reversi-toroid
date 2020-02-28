@@ -48,15 +48,6 @@ if (Object.freeze) {
 }
 
 
-// The main data object with constants and main variables.
-/*let status = {
-    players: {},
-    maps: {},
-    scoreBoard: {},
-    message: {},
-};*/
-
-
 class Players {
     constructor() {
         this.isHuman = [false, true, true]; //[unused, player 1 is human (true/false), player 2 is human (true/false)]
@@ -355,17 +346,6 @@ class Message {
     moveAgain() {
         $(this.html).html(`Move of Player${status.players.current} (${status.players.getCurrentColor()}) again!`);
     }
-
-    gameResult() {
-        let winMessage = "DRAW";
-        if (status.scoreBoard.player1Wins()) {
-            winMessage = `${status.players.name[1]} (${PlayerColorEnum.color[1]}) WON!!!`;
-        }
-        if (status.scoreBoard.player2Wins()) {
-            winMessage = `${status.players.name[2]} (${PlayerColorEnum.color[2]}) WON!!!`;
-        }
-        $(this.html).html(winMessage);
-    }
 };
 
 
@@ -377,6 +357,17 @@ class Game {
         this.message = new Message();
     }
 
+    gameResult() {
+        let winMessage = "DRAW";
+        if (this.scoreBoard.player1Wins()) {
+            winMessage = `${this.players.name[1]} (${PlayerColorEnum.color[1]}) WON!!!`;
+        }
+        if (this.scoreBoard.player2Wins()) {
+            winMessage = `${this.players.name[2]} (${PlayerColorEnum.color[2]}) WON!!!`;
+        }
+        $(this.message.html).html(winMessage);
+    }
+
     // Functions allows to change a player's name.
     chooseNewName(clickedScore) {
         // Create short names for 3 objects.
@@ -385,13 +376,13 @@ class Game {
         let scoreBoard = this.scoreBoard;
 
         // Save current message to restore it after setting a new name.
-        let messageBuffer = $(message.html).html(); 
+        let messageBuffer = $(message.html).html();
 
         // Find out which score was clicked and thus which name should be changed.
         let elementId = $(clickedScore).attr("id");
         let player = parseInt(elementId[elementId.length - 1]);
         let inputHtml1 = `<span>Enter new name for Player ${player}: </span>`;
-        let inputHtml2 =`<input id="${IdEnum.inputFieldId}" type="text" value="AI (level 2)" size="12">`;
+        let inputHtml2 = `<input id="${IdEnum.inputFieldId}" type="text" value="AI (level 2)" size="12">`;
         let inputHtml3 = `<button id="${IdEnum.okButtonId}">OK</button>`;
         $(message.html).html(inputHtml1 + inputHtml2 + inputHtml3);
 
@@ -443,7 +434,7 @@ $(document).ready(function () {
     // React to choosing the "toroid" version of Reversi .
     $("#start-toroid").click(function () {
         $("#play > h3").text("Reversi-on-Toroid");
-        status = new Game(true);
+        status = new Game(false);
         $("#welcome").hide();
         $("#play").show();
         status.scoreBoard.display(status.players.name);
@@ -463,16 +454,17 @@ $(document).ready(function () {
         // Read coordinates of the clicked square.
         let clickedSquare = readCoordinates(this.classList);
 
-        // Check if the clicked square is already of the "clicking" color...
+        // Display an alert if the move is not valid.
         if (status.maps.current.map[clickedSquare.y][clickedSquare.x] != 0 || status.players.current == 0) {
-            alert("Not a valid move. Click on an EMPTY square!!!"); // ... if so, show an alert and do not react.
+            alert("Not a valid move. Click on an EMPTY square!!!");
             return;
         }
 
-        // Calculate gain in all 8 possible directions for clickedSquare clicked by current player (status.players.current) and check that the move is valid.
+        // Calculate gain in all 8 possible directions for "clickedSquare" clicked by current player (status.players.current).
         let scoreChange = status.maps.current.calculateGain(clickedSquare, status.players.current);
+        // Display an alert if the move is not valid.
         if (scoreChange == 0) {
-            alert("Not a valid move! You MUST capture/flip AT LEAST 1 opponent square!!!"); // ... if not, show an alert and do not react.
+            alert("Not a valid move! You MUST capture/flip AT LEAST 1 opponent square!!!");
             return;
         }
         status.scoreBoard.updateScore(scoreChange); // Update score.
@@ -538,7 +530,6 @@ function potentialAiMove() {
 function makeNextMove() {
     let nextPlayer = opponent(status.players.current);
     let opponentPlayerCanMove = status.maps.canPlayerMove(nextPlayer);
-    //let opponentPlayerCanMove = status.players.canPlayerMove("opponent");
     if (opponentPlayerCanMove) { // if the opponent player can move
         status.players.passMove();
         status.message.update();
@@ -546,7 +537,6 @@ function makeNextMove() {
     } else {
         let nextPlayer = status.players.current;
         let currentPlayerCanMove = status.maps.canPlayerMove(nextPlayer);
-        //let currentPlayerCanMove = status.players.canPlayerMove("current");
         if (currentPlayerCanMove) { // if the opponent player cannot move but the current player can move again
             status.message.moveAgain();
             potentialAiMove();
