@@ -331,43 +331,60 @@ class Maps {
 
 }
 
-// A class for information anout players.
+/**
+ * A class with infomation about players.
+ */
 class Players {
+    /**
+     * Creates and initializes players' data.
+     */
     constructor() {
-        this.isHuman = [false, true, true]; //[unused, player 1 is human (true/false), player 2 is human (true/false)]
-        this.name = ["", "Player1", "Player2"]; //[unused, name of player 1, name of player 2]
-        this.current = 0; //current player to move: 0 - empty, 1 - black, 2 - white
-        this.aiLevel = 0; //AI level; must be either 1, or 2, or 3, or 4; level 0 is default for no AI player
-        this.changeNameOfPlayer = 0; // The number of the player which is going to change its name.
+        this.isHuman = [false, true, true]; // {!Array<boolean>}: [unused, Player 1 is human, Player 2 is human].
+        this.name = ["", "Player1", "Player2"]; // {!Array<string>}: [unused, name of player 1, name of player 2].
+        this.current = 0; // {number} Current player to move: 0 - empty, 1 - black, 2 - white.
+        this.aiLevel = 0; // {number} AI level: must be either 1, or 2; level 0 is default for no AI player.
+        this.changeNameOfPlayer = 0; // {number} Number of the player which is going to change its name.
     }
 
-    passMove() {
-        this.current = opponent(this.current);
-    }
-
+    /**
+     * Returns the current player's color.
+     * @return {string} The color.
+     */
     getCurrentColor() {
         return PlayerColorEnum.color[this.current];
     }
 
-    // Function sets "name[player]" to "name" and "isHuman" to "false" for an AI player, or "true" for a human player; returns "false" if there is a problem
+    /**
+     * Passes the move to the opponent player.
+     */
+    passMove() {
+        this.current = opponent(this.current);
+    }
+
+    /**
+     * Analylizes the string in input field and either displays an alert or sets name, isHuman, aiLevel to proper values.
+     * @param {string} name The possible new name (from input field).
+     * @param {number} player The player whose name needs to be changed.
+     * @return {boolean} True if everything is OK, false if the new name was not valid.
+     */
     setNewName(name, player) {
-        // Analyze the entered new name. If the user tried to select an "AI-name" then comtrol that it is correct
+        // Analyzes the entered new name.
         let newNameStartsWith = name.slice(0, 10);
-        // Check whether the new name starts as a correct "AI-name": "AI (level ".
+        // Checks whether the new name starts as a correct "AI-name": "AI (level ".
         if (newNameStartsWith == "AI (level ") {
             let newNameEndsWith = name.slice(11, 12);
-            // Display an alert if the new name starts as a correct "AI-name" but doesn't end as one.
+            // Displays an alert if the new name starts as a correct "AI-name" but doesn't end as one.
             if (newNameEndsWith != ')') {
                 alert(`The AI level looks strange. It MUST be not lower than ${AiLevelEnum.MIN} and no higher than ${AiLevelEnum.MAX}.`);
                 return false;
             }
-            // Display an alert if the user tries to switch both players to AI.
+            // Displays an alert if the user tries to switch both players to AI.
             if (!this.isHuman[opponent(player)]) {
                 alert("At present there MUST be at least 1 HUMAN player");
                 return false;
             } else {
                 let newAiLevel = name.charCodeAt(10) - 48;
-                // Display an alert if the chosen AI level is not supported yet.
+                // Displays an alert if the chosen AI level is not supported yet.
                 if (newAiLevel < AiLevelEnum.MIN || newAiLevel > AiLevelEnum.MAX) {
                     alert(`At present minimal AI level is ${AiLevelEnum.MIN} and maximal is ${AiLevelEnum.MAX}. While you try to set it to ${newAiLevel}.`);
                     return false;
@@ -379,34 +396,57 @@ class Players {
         } else { // If the new name is a "human" name...
             this.isHuman[player] = true;
         }
-        // Set the new name.
+        // Sets the new name.
         this.name[player] = name;
-        // Everything is OK.
+        // Returns that everything is OK.
         return true;
     }
 }
 
-// A class for a board (below the game board) that displays the current score
+/**
+ * A class for a board (below the game board) that displays the players' current scores.
+ */
 class ScoreBoard {
+    /**
+     * Creates and initializes scores.
+     */
     constructor() {
-        this.score = [0, 2, 2,];
+        this.score = [0, 2, 2,];// {!Array<number>}: [unused, score of Player 1,  score of Player 2].
     }
 
-    player1Wins() {
-        return this.score[1] > this.score[2];
-    }
-
-    player2Wins() {
-        return this.score[1] < this.score[2];
-    }
-
-    displayScore(name) { // Function displays the current score.
+    /**
+     * Displays the current score.
+     * @param {!Array<string>} name An array with players' names.
+     * @return {boolean} True if everything is OK, false if the new name was not valid.
+     */
+    displayScore(name) {
         for (let i = 1; i < 3; i++) {
             $(`#player${i} > .score`).text(this.score[i]);
             $(`#player${i} > .name`).text(name[i]);
         }
     }
 
+    /**
+     * Analylizes players' score and returns true if Player 1 wins.
+     * @return {boolean} True if Player 1 wins, false otherwise.
+     */
+    player1Wins() {
+        return this.score[1] > this.score[2];
+    }
+
+    /**
+     * Analylizes players' score and returns true if Player 2 wins.
+     * @return {boolean} True if Player 2 wins, false otherwise.
+     */
+    player2Wins() {
+        return this.score[1] < this.score[2];
+    }
+
+    /**
+     * Updates the current score.
+     * @param {number} change The gain of the current player (and loss of the opponent).
+     * @param {number} player The current player's number.
+     */
     updateScore(change, player) { // Function updates the score.
         switch (player) {
             case 1:
@@ -419,19 +459,29 @@ class ScoreBoard {
                 break;
         }
     }
-
 };
 
-// A class for the message section (below the score board) that displays various messages.
+/**
+ * A class for a message board (below the score board) that displays various messages.
+ */
 class Message {
+    /**
+     * Creates and initializes message properties.
+     */
     constructor() {
-        this.html = "#message-content"; //selector for the message section
-        this.oldMessage = ""; // A buffer for storage of an old message
-        this.newPlayerInput = "new-name"; // an input field for a new name
+        this.html = "#message-content"; // Selector for the message section.
+        this.oldMessage = ""; // A buffer for storage of an old message.
     }
 };
 
+/**
+ * The main class containing other classes and methods that use several of the subclasses.
+ */
 class Game {
+    /**
+     * Creates and initializes 4 game objects.
+     * @param {boolean} isClassic The classical board flag: true - classic, false - toroid.
+     */
     constructor(isClassic) {
         this.players = new Players();
         this.maps = new Maps(isClassic);
@@ -439,34 +489,46 @@ class Game {
         this.message = new Message();
     }
 
+    /**
+     * Finishes the move after the current player moves to "square" which results in "scoreChange".
+     * @param {!ObjType<Square>} square The clicked square.
+     * @param {number} scoreChange Gain of the current player (and loss of the opponent).
+     */
     finishMove(square, scoreChange) {
-        this.scoreBoard.updateScore(scoreChange, this.players.current); // Update score.
-        this.scoreBoard.displayScore(this.players.name); // Display the current score.
-        this.maps.current.updateMap(square, this.players.current); // Update "this.maps.current".
-        this.maps.permitted.updateMap(square, this.players.current);  // Update "this.maps.permitted".
-        this.maps.updateGameBoard(); // Update colors on the board according to the move.
-        this.makeNextMove(); // Pass move to the opposite player.
+        this.scoreBoard.updateScore(scoreChange, this.players.current); // Updates the score.
+        this.scoreBoard.displayScore(this.players.name); // Displays the score.
+        this.maps.current.updateMap(square, this.players.current); // Updates "current" map.
+        this.maps.permitted.updateMap(square, this.players.current);  // Updates "permitted" map.
+        this.maps.updateGameBoard(); // Updates colors on the board according to "current" map.
+        this.makeNextMove(); // Passes move to the opponent player.
     }
 
+    /**
+     * Finishes the attempt to set a new name for a player (when the user clicked "OK").
+     */
     finishSettingNewName() {
-        // Try to save the new name.
+        // Tries to set the new name.
         let newName = $("#new-name").val();
+        // If something went wrong, exits the function without doing anything.
         if (!this.players.setNewName(newName, this.players.changeNameOfPlayer)) {
-            return; // If something went wrong, exit the function without doing anything.
+            return;
         };
-        // Restore the message about the player to move.
+        // Restores the message about the player to move.
         $(this.message.html).html(this.message.oldMessage);
         this.updateMessage();
-        // Save the new name and restore current message
+        // Saves the new name and restores current message
         this.scoreBoard.displayScore(this.players.name);
         $("#new-player").hide();
-        // If the name of the current player is changed then make the player move by: passing the move to opponent and making the next move. 
+        // If the name of the current player is changed then make the player move by 1) passing the move to opponent and 2) making the next move. 
         if (this.players.changeNameOfPlayer == this.players.current) {
             this.players.passMove();
             this.makeNextMove();
         }
     }
 
+    /**
+     * Displays the game's result When the game is over.
+     */
     gameResult() {
         let winMessage = "DRAW";
         if (this.scoreBoard.player1Wins()) {
@@ -478,6 +540,10 @@ class Game {
         $(this.message.html).html(winMessage);
     }
 
+    /**
+     * Initializes a game.
+     * @param {string} headerText The header: "Classic reversi" or "Reversi-on-Toroid".
+     */
     initializeGame(headerText) {
         $("#play > h3").text(headerText);
         $("#welcome").hide();
@@ -487,33 +553,44 @@ class Game {
         this.maps.updateGameBoard();
     }
 
+    /**
+     * Checks whether players can make one more move.
+     */
     makeNextMove() {
         let nextPlayer = opponent(this.players.current);
         let opponentPlayerCanMove = this.maps.canPlayerMove(nextPlayer);
-        if (opponentPlayerCanMove) { // if the opponent player can move
+        if (opponentPlayerCanMove) { // If the opponent player can move...
             this.players.passMove();
             this.updateMessage();
-            this.potentialAiMove(); // Try to move for the AI
+            this.potentialAiMove(); // Tries to move for the AI.
         } else {
             let nextPlayer = this.players.current;
             let currentPlayerCanMove = this.maps.canPlayerMove(nextPlayer);
-            if (currentPlayerCanMove) { // if the opponent player cannot move but the current player can move again
+            if (currentPlayerCanMove) { // If the opponent player cannot move but the current player can move again...
                 this.moveAgain();
-                this.potentialAiMove();// Try to move for the AI
+                this.potentialAiMove();// Tries to move for the AI.
             } else {
-                this.gameResult(); // if neither player can move then display the game result message
+                this.gameResult(); // If neither player can move then display the game result message.
             }
         }
     }
 
+    /**
+     * Displays a message that the current player can move again.
+     */
     moveAgain() {
         $(this.message.html).html(`Move of Player${this.players.current} (${this.players.getCurrentColor()}) again!`);
     }
 
+    /**
+     * Makes a move if the curent player is AI.
+     */
     potentialAiMove() {
+        // If the current player is human then exits without doing anything.
         if (this.players.isHuman[this.players.current]) {
             return;
-        } // The function will not be executed if the current player is human.
+        }
+        // Makes a move for AI player.
         let potentialY = [];
         let potentialX = [];
         let bufferGain = [];
@@ -526,11 +603,12 @@ class Game {
                 }
             }
         }
-        // If "aiLevel" is at 2 then consider only moves with maximal gain.
+        // If "aiLevel" is at 2 then keeps only possible moves with maximal gain.
         if (this.players.aiLevel == 2) {
+            // Finds the maximal possible gain.
             let maxGain = bufferGain.reduce(function (a, b) {
                 return Math.max(a, b);
-            }); // Find the maximal possible gain.
+            });
             let maximumY = [];
             let maximumX = [];
             for (let i = 0; i < bufferGain.length; i++) {
@@ -542,14 +620,18 @@ class Game {
             potentialY = maximumY;
             potentialX = maximumX;
         }
-        // Randomly choose one move among all possible. 
+        // Randomly chooses one move among all possible. 
         let randomIndex = Math.floor(Math.random() * potentialY.length);
         // Set a square that AI "clicked".
         let aiChosenSquare = new Square(potentialY[randomIndex], potentialX[randomIndex]);
-        let scoreChange = this.maps.current.calculateGain(aiChosenSquare, this.players.current); // Calculate potential gains.
+        let scoreChange = this.maps.current.calculateGain(aiChosenSquare, this.players.current); // Calculates potential gains.
         this.finishMove(aiChosenSquare, scoreChange);
     }
 
+    /**
+     * Starts the attempt of setting a new name for a player (input field is shown).
+     * @param {string} clickedScore Selector for the clicked score frame.
+     */
     startSettingNewName(clickedScore) {
         this.message.oldMessage = $(this.message.html).html();
         let elementId = $(clickedScore).attr("id");
@@ -560,7 +642,10 @@ class Game {
         this.players.changeNameOfPlayer = player;
     }
 
-    updateMessage() { // Function updates the message when current player (this.players.current) clicks on square, or a name is changed, or the game is over.
+    /**
+     * Updates the message when the current player clicks a square, or a name is changed.
+     */
+    updateMessage() {
         $(this.message.html).html(`Move of ${this.players.name[this.players.current]} (${this.players.getCurrentColor()})`);
         $(this.message.html).removeClass("font-white");
         $(this.message.html).removeClass("font-black");
@@ -569,38 +654,41 @@ class Game {
 }
 
 
+/* The main part of script. */
 $(document).ready(function () {
-    let status = {}; // Declaration of the main object.
+    // Declares the main object.
+    let status = {};
 
-    // React to click of "Restart" button (reset to original view).
+    // Reacts to click of "Restart" button (reset to the initial view).
     $("#button-restart").click(function () {
         $("#play").hide();
         $("#welcome").show();
     });
 
-    // React to choosing the "classic" version of Reversi.
+    // Reacts to choosing the "classic" version of Reversi.
     $("#start-classic").click(function () {
         status = new Game(true);
         status.initializeGame("Classic Reversi");
     });
 
-    // React to choosing the "toroid" version of Reversi .
+    // Reacts to choosing the "toroid" version of Reversi .
     $("#start-toroid").click(function () {
         status = new Game(false);
         status.initializeGame("Reversi-on-Toroid");
     });
 
-    // React to click on a square (a human move).
+    // Reacts to click of a square (a human move).
     $(".square").click(function () {
-        // Read coordinates of the clicked square.
+        // Reads coordinates of the clicked square.
         let clickedSquare = readCoordinates(this.classList);
-        // Display an alert if the move is not valid.
+        // Displays an alert if the move is not valid.
         if (status.maps.current.map[clickedSquare.y][clickedSquare.x] != 0 || status.players.current == 0) {
             alert("Not a valid move. Click on an EMPTY square!!!");
             return;
         }
-        let scoreChange = status.maps.current.calculateGain(clickedSquare, status.players.current); // Calculate potential gains.
-        // Display an alert if the move is not valid.
+        // Calculates potential gains.
+        let scoreChange = status.maps.current.calculateGain(clickedSquare, status.players.current);
+        // Displays an alert if the move is not valid.
         if (scoreChange == 0) {
             alert("Not a valid move! You MUST capture/flip AT LEAST 1 opponent square!!!");
             return;
@@ -608,12 +696,12 @@ $(document).ready(function () {
         status.finishMove(clickedSquare, scoreChange);
     });
 
-    // React to click of a score frame of player 1 or 2 to change the player's name.
+    // Reacts to click of a score frame of Player 1 or 2 to change the player's name.
     $(".score-frame").click(function () {
         status.startSettingNewName(this);
     });
 
-    // React to click of "OK" button for a new name.
+    // Reacts to click of "OK" button for a new name.
     $("#name-ok").click(function () {
         status.finishSettingNewName();
     });
