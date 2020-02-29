@@ -71,7 +71,8 @@ class Square {
         this.x = x;
     }
 
-    setNewColor(newColor) { // Function sets the color of a "square" to "newColor" ("black" or "white").
+    // Function sets the color of a "square" to newColor" ("black" or "white").
+    setNewColor(newColor) {
         let selector = `.y${this.y}.x${this.x}`;
         $(selector).removeClass("bg-white");
         $(selector).removeClass("bg-black");
@@ -79,7 +80,8 @@ class Square {
         $(selector).addClass("bg-" + newColor);
     }
 
-    classicShiftBy(shift) { // Function shifts coordinates of a square "this" on the classic board by a vector "shift". Returns false if square is out of the board.
+    // Function shifts coordinates of a square "this" on the classic board by a vector "shift". Returns false if square is out of the board.
+    classicShiftBy(shift) {
         this.y = this.y + shift.dy;
         this.x = this.x + shift.dx;
         if (this.y < 0 || this.y > 7 || this.x < 0 || this.x > 7) {
@@ -91,7 +93,8 @@ class Square {
         }
     }
 
-    toroidShiftBy(shift) { // Function shifts coordinates of a square "this" on the toroid board by a vector "shift".
+    // Function shifts coordinates of a square "this" on the toroid board by a vector "shift".
+    toroidShiftBy(shift) {
         this.y = (this.y + shift.dy + 8) % 8;
         this.x = (this.x + shift.dx + 8) % 8;
     }
@@ -138,7 +141,6 @@ class Map {
     // Function updates "this.maps.current/permitted.map" when the current player ("player") clicks on "square" (square.y, square.x).
     updateMap(square, player) {
         let bufferSquare = new Square(0, 0);
-
         if (this.type == "current") { // if the map to be updates is current
             this.map[square.y][square.x] = player; //update color of the "square"
             //reverse the opponent's squares
@@ -153,7 +155,6 @@ class Map {
                 }
             }
         }
-
         if (this.type == "permitted") { // if the map to be updates is permitted
             this.map[square.y][square.x] = 2; //mark "square" as occupied
             // Check all squares aroung the "square"
@@ -214,10 +215,8 @@ class Map {
                 }
             }
         }
-
         this.potentialGains = output;
         this.totalPotentialGain = this.potentialGains.reduce((a, b) => a + b, 0);
-
         return this.totalPotentialGain;
     }
 }
@@ -476,9 +475,7 @@ class Game {
         let randomIndex = Math.floor(Math.random() * potentialY.length);
         // Set a square that AI "clicked".
         let aiChosenSquare = new Square(potentialY[randomIndex], potentialX[randomIndex]);
-
         let scoreChange = this.maps.current.calculateGain(aiChosenSquare, this.players.current); // Calculate potential gains.
-
         this.finishMove(aiChosenSquare, scoreChange);
     }
 
@@ -502,7 +499,6 @@ class Game {
 
 
 $(document).ready(function () {
-
     let status = {}; // Declaration of the main object.
 
     // React to click of "Restart" button (reset to original view).
@@ -525,23 +521,19 @@ $(document).ready(function () {
 
     // React to click on a square (a human move).
     $(".square").click(function () {
-
         // Read coordinates of the clicked square.
         let clickedSquare = readCoordinates(this.classList);
-
         // Display an alert if the move is not valid.
         if (status.maps.current.map[clickedSquare.y][clickedSquare.x] != 0 || status.players.current == 0) {
             alert("Not a valid move. Click on an EMPTY square!!!");
             return;
         }
-
         let scoreChange = status.maps.current.calculateGain(clickedSquare, status.players.current); // Calculate potential gains.
         // Display an alert if the move is not valid.
         if (scoreChange == 0) {
             alert("Not a valid move! You MUST capture/flip AT LEAST 1 opponent square!!!");
             return;
         }
-
         status.finishMove(clickedSquare, scoreChange);
     });
 
@@ -554,5 +546,4 @@ $(document).ready(function () {
     $("#name-ok").click(function () {
         status.finishSettingNewName();
     });
-
 });
