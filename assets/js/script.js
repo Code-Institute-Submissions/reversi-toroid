@@ -337,13 +337,6 @@ class Message {
         this.html = "#message-content"; //selector for the message section
     }
 
-    update() { // Function updates the message when current player (status.players.current) clicks on square, or a name is changed, or the game is over.
-        $(this.html).html(`Move of ${status.players.name[status.players.current]} (${status.players.getCurrentColor()})`);
-        $(this.html).removeClass("font-white");
-        $(this.html).removeClass("font-black");
-        $(this.html).addClass("font-" + status.players.getCurrentColor());
-    }
-
     moveAgain() {
         $(this.html).html(`Move of Player${status.players.current} (${status.players.getCurrentColor()}) again!`);
     }
@@ -356,6 +349,13 @@ class Game {
         this.maps = new Maps(isClassic);
         this.scoreBoard = new ScoreBoard();
         this.message = new Message();
+    }
+
+    updateMessage() { // Function updates the message when current player (status.players.current) clicks on square, or a name is changed, or the game is over.
+        $(this.message.html).html(`Move of ${this.players.name[this.players.current]} (${this.players.getCurrentColor()})`);
+        $(this.message.html).removeClass("font-white");
+        $(this.message.html).removeClass("font-black");
+        $(this.message.html).addClass("font-" + this.players.getCurrentColor());
     }
 
     gameResult() {
@@ -391,12 +391,12 @@ class Game {
         $(`#${IdEnum.okButtonId}`).click(function () {
             // Try to save the new name.
             let newName = $(`#${IdEnum.inputFieldId}`).val();
-            if (!players.setNewName(newName, player)) {
+            if (!status.players.setNewName(newName, player)) {
                 return; // If something went wrong, exit the function without doing anything.
             };
             // Restore the message about the player to move.
             $(message.html).html(messageBuffer);
-            message.update();
+            status.updateMessage();
             // Save the new name and restore current message
             scoreBoard.display(players.name);
             // If the name of the current player is changed then make the player move by: passing the move to opponent and making the next move. 
@@ -533,7 +533,7 @@ function makeNextMove() {
     let opponentPlayerCanMove = status.maps.canPlayerMove(nextPlayer);
     if (opponentPlayerCanMove) { // if the opponent player can move
         status.players.passMove();
-        status.message.update();
+        status.updateMessage();
         potentialAiMove();
     } else {
         let nextPlayer = status.players.current;
