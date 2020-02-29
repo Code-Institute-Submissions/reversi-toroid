@@ -1,3 +1,7 @@
+/**
+ * 2D vectors for 8 possible directions.
+ * @enum {number, number}
+ */
 const CompassEnum = {
     N: 0,
     NE: 1,
@@ -19,7 +23,10 @@ const CompassEnum = {
     },
 };
 
-// Colors for players: "green" - unoccupied, "black" - player 1, "white" - player 2
+/**
+ * Colors for squares.
+ * @enum {string}
+ */
 const PlayerColorEnum = {
     UNOCCUPIED: 0,
     PLAYER1: 1,
@@ -31,6 +38,10 @@ const PlayerColorEnum = {
     },
 };
 
+/**
+ * Minimal and maximal levels of AI.
+ * @enum {number}
+ */
 const AiLevelEnum = {
     MIN: 1, //minimal AI level
     MAX: 2, //maximal AI level
@@ -42,12 +53,20 @@ if (Object.freeze) {
     Object.freeze(AiLevelEnum);
 }
 
-
+/**
+ * Calculates the opponent player number.
+ * @param {number} player
+ * @return {number} The opponent player number.
+ */
 function opponent(player) {
     return player % 2 + 1;
 }
 
-// Function reads a coordinate ("inputAxis": "x" or "y") of a square from the square's list of classes ("inputClasses").
+/**
+ * Extracts coordinates of a square form an array containing its classes.
+ * @param {!Array<string>} inputClasses
+ * @return {!ObjType<Square>} An object with coordinates of the square.
+ */
 function readCoordinates(inputClasses) {
     let output = new Square(0, 0);
     for (let i of inputClasses) {
@@ -64,14 +83,23 @@ function readCoordinates(inputClasses) {
     return output;
 }
 
-// A class for a square.
+/**
+ * A pair of coordinates (y,x) for a square.
+ */
 class Square {
+    /**
+     * @param {number} y The vertical coordinate (0 - top, 7 -bottom).
+     * @param {number} x The horizontal coordinate (0 - left, 7 -right).
+     */
     constructor(y, x) {
         this.y = y;
         this.x = x;
     }
 
-    // Function sets the color of a "square" to newColor" ("black" or "white").
+    /**
+     * Sets the color of a square with coordinates (y,x) to a new color.
+     * @param {string} newColor The new color ("black" or "white").
+     */
     setNewColor(newColor) {
         let selector = `.y${this.y}.x${this.x}`;
         $(selector).removeClass("bg-white");
@@ -80,7 +108,11 @@ class Square {
         $(selector).addClass("bg-" + newColor);
     }
 
-    // Function shifts coordinates of a square "this" on the classic board by a vector "shift". Returns false if square is out of the board.
+    /**
+     * Shifts coordinates of a square on the classic board by a vector.
+     * @param {!ObjType<Vector>} shift The shift vector.
+     * @return {boolean} False if the result is out of the board, true otherwise.
+     */
     classicShiftBy(shift) {
         this.y = this.y + shift.dy;
         this.x = this.x + shift.dx;
@@ -93,23 +125,41 @@ class Square {
         }
     }
 
-    // Function shifts coordinates of a square "this" on the toroid board by a vector "shift".
+    /**
+     * Shifts coordinates of a square on the toroid board by a vector.
+     * @param {!ObjType<Vector>} shift The shift vector.
+     */
     toroidShiftBy(shift) {
         this.y = (this.y + shift.dy + 8) % 8;
         this.x = (this.x + shift.dx + 8) % 8;
     }
 }
 
-// A class for vectors describing shifts from a square.
+/**
+ * A pair of components (dy,dx) for a vector.
+ */
 class Vector {
+    /**
+     * @param {number} dy The vertical component (0 - top, 7 -bottom).
+     * @param {number} dx The horizontal component (0 - left, 7 -right).
+     */
     constructor(dy, dx) {
         this.dy = dy;
         this.dx = dx;
     }
 }
 
-// A class for a game map.
+/**
+ * A game map with flags.
+ */
 class Map {
+    /**
+     * Creates and initializes a map.
+     * @param {boolean} isClassic The classical board flag: true - classic, false - toroid.
+     * @param {string} typeOfMap The map type:
+     *     "current" - empty or occupied squares,
+     *     "permitted" - squares permitted for a move, or occupied, or empty non-permitted.
+     */
     constructor(isClassic, typeOfMap) {
         this.isClassic = isClassic;
         this.type = typeOfMap;
@@ -138,28 +188,75 @@ class Map {
         this.totalPotentialGain = 0;
     }
 
-    // Function updates "this.maps.current/permitted.map" when the current player ("player") clicks on "square" (square.y, square.x).
+    /**
+     * Calculates gains in 8 possible directions and the total gain if "player" clicks "square".
+     * @param {!ObjType<Square>} square The clicked square.
+     * @param {number} player The player that makes a move.
+     * @return {number} Total potential gain.
+     */
+    calculateGain(square, player) {
+        let output = [];
+        for (let i = 0; i < 8; i++) {
+            let dir = new Vector(CompassEnum.basis[i].dy, CompassEnum.basis[i].dx);
+            let bufferSquare = new Square(square.y, square.x);
+            for (let j = 1; j < 8; j++) {
+                if (this.isClassic) { // If the map is classic...
+                    // If the terminal square is out of the board then gain in this direction is 0.
+                    if (!bufferSquare.classicShiftBy(dir)) {
+                        output.push(0);
+                        break;
+                    }
+                } else { // If the map to be updates is toroid...
+                    bufferSquare.toroidShiftBy(dir);
+                }
+                // If the terminal square is empty then gain in this direction is 0
+                if (this.map[bufferSquare.y][bufferSquare.x] == 0) {
+                    output.push(0);
+                    break;
+                }
+                // If the terminal square is of own color then calcute the gain in this direction.
+                if (this.map[bufferSquare.y][bufferSquare.x] == player) {
+                    output.push(j - 1);
+                    break;
+                }
+            }
+        }
+        this.potentialGains = output;
+        this.totalPotentialGain = this.potentialGains.reduce((a, b) => a + b, 0);
+        return this.totalPotentialGain;
+    }
+
+    /**
+     * Updates a map when "player" clicks "square".
+     * @param {!ObjType<Square>} square The clicked square.
+     * @param {number} player The player that makes a move.
+     */
     updateMap(square, player) {
         let bufferSquare = new Square(0, 0);
-        if (this.type == "current") { // if the map to be updates is current
-            this.map[square.y][square.x] = player; //update color of the "square"
-            //reverse the opponent's squares
+        if (this.type == "current") { // If the map to be updates is current...
+            // Update color of "square".
+            this.map[square.y][square.x] = player;
+            // Reverse color of the opponent's squares.
             for (let i = 0; i < 8; i++) {
                 if (this.potentialGains[i] > 0) {
                     let dir = CompassEnum.basis[i];
-                    Object.assign(bufferSquare, square); // Initialize the buffer square.
+                    // Initialize the buffer square.
+                    Object.assign(bufferSquare, square);
                     for (let j = 0; j < this.potentialGains[i]; j++) {
                         bufferSquare.toroidShiftBy(dir);
-                        this.map[bufferSquare.y][bufferSquare.x] = player; //update color of the bufferSquare
+                        // Update color of the bufferSquare.
+                        this.map[bufferSquare.y][bufferSquare.x] = player;
                     }
                 }
             }
         }
-        if (this.type == "permitted") { // if the map to be updates is permitted
-            this.map[square.y][square.x] = 2; //mark "square" as occupied
-            // Check all squares aroung the "square"
+        if (this.type == "permitted") { // If the map to be updates is permitted...
+            // Mark "square" as occupied.
+            this.map[square.y][square.x] = 2;
+            // Check all squares aroung "square".
             for (let i = -1; i < 2; i++) {
                 for (let j = -1; j < 2; j++) {
+                    // Calculate coordinates of a neighbour square.
                     Object.assign(bufferSquare, square);
                     let shift = new Vector(i, j);
                     if (this.isClassic) {
@@ -169,7 +266,7 @@ class Map {
                     } else {
                         bufferSquare.toroidShiftBy(shift);
                     }
-                    // If the neighbour square was marked as unoccupied (this.map == 0) then mark it as permitted for a move
+                    // If a neighbour square was unoccupied then mark it as permitted.
                     if (this.map[bufferSquare.y][bufferSquare.x] == 0) {
                         this.map[bufferSquare.y][bufferSquare.x] = 1;
                     }
@@ -177,69 +274,26 @@ class Map {
             }
         }
     }
-
-    // Function calculates gains in 8 possible directions and the total gain if "player" clicks "square".
-    calculateGain(square, player) {
-        let output = [];
-        for (let i = 0; i < 8; i++) {
-            let dir = new Vector(CompassEnum.basis[i].dy, CompassEnum.basis[i].dx);
-            let bufferSquare = new Square(square.y, square.x);
-            for (let j = 1; j < 8; j++) {
-                if (this.isClassic) { // if the map to be updates is classic
-                    if (!bufferSquare.classicShiftBy(dir)) {
-                        output.push(0);
-                        break;
-                    }
-                    // if the terminal square is empty then gain in this direction is 0
-                    if (this.map[bufferSquare.y][bufferSquare.x] == 0) {
-                        output.push(0);
-                        break;
-                    }
-                    // if the terminal square is of own color then calcute the gain in this direction
-                    if (this.map[bufferSquare.y][bufferSquare.x] == player) {
-                        output.push(j - 1);
-                        break;
-                    }
-                } else { // if the map to be updates is toroid
-                    bufferSquare.toroidShiftBy(dir);
-                    // if the terminal square is empty then gain in this direction is 0
-                    if (this.map[bufferSquare.y][bufferSquare.x] == 0) {
-                        output.push(0);
-                        break;
-                    }
-                    // if the terminal square is of own color then calcute the gain in this direction
-                    if (this.map[bufferSquare.y][bufferSquare.x] == player) {
-                        output.push(j - 1);
-                        break;
-                    }
-                }
-            }
-        }
-        this.potentialGains = output;
-        this.totalPotentialGain = this.potentialGains.reduce((a, b) => a + b, 0);
-        return this.totalPotentialGain;
-    }
 }
 
-// A class with 2 game maps.
+/**
+ * A class with the 2 game maps.
+ */
 class Maps {
+    /**
+     * Creates and initializes 2 game maps.
+     * @param {boolean} isClassic The classical board flag: true - classic, false - toroid.
+     */
     constructor(isClassic) {
         this.current = new Map(isClassic, "current");
         this.permitted = new Map(isClassic, "permitted");
     }
 
-    // Function updates colors on the board according to "this.current.map".
-    updateGameBoard() {
-        for (let i = 0; i < 8; i++) {
-            for (let j = 0; j < 8; j++) {
-                let bufferSquare = new Square(i, j);
-                let newColor = PlayerColorEnum.color[this.current.map[i][j]];
-                bufferSquare.setNewColor(newColor);
-            }
-        }
-    }
-
-    // Function checks if "player" can move.
+    /**
+     * Checks whether "player" can move.
+     * @param {number} player The player.
+     * @return {boolean} True if player can move, false if player cannot move.
+     */
     canPlayerMove(player) {
         let reply = false;
         for (let i = 0; i < 8; i++) {
@@ -258,6 +312,23 @@ class Maps {
         }
         return reply;
     }
+
+    /**
+     * Updates colors on the game board according to the current map.
+     * @param {!ObjType<Square>} square The clicked square.
+     * @param {number} player The player that makes a move.
+     */
+    updateGameBoard() {
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+                let bufferSquare = new Square(i, j);
+                let newColor = PlayerColorEnum.color[this.current.map[i][j]];
+                bufferSquare.setNewColor(newColor);
+            }
+        }
+    }
+
+
 }
 
 // A class for information anout players.
