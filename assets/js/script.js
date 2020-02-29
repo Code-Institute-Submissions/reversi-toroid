@@ -36,16 +36,10 @@ const AiLevelEnum = {
     MAX: 2, //maximal AI level
 };
 
-const IdEnum = {
-    inputFieldId: "new-name", //id for the input element to type a new name
-    okButtonId: "name-ok", //id for the OK button
-}
-
 if (Object.freeze) {
     Object.freeze(CompassEnum);
     Object.freeze(PlayerColorEnum);
     Object.freeze(AiLevelEnum);
-    Object.freeze(IdEnum);
 }
 
 
@@ -55,6 +49,7 @@ class Players {
         this.name = ["", "Player1", "Player2"]; //[unused, name of player 1, name of player 2]
         this.current = 0; //current player to move: 0 - empty, 1 - black, 2 - white
         this.aiLevel = 0; //AI level; must be either 1, or 2, or 3, or 4; level 0 is default for no AI player
+        this.changeNameOfPlayer = 0; //TEST!!!
     }
 
     passMove() {
@@ -335,6 +330,8 @@ class ScoreBoard {
 class Message {
     constructor() {
         this.html = "#message-content"; //selector for the message section
+        this.oldMessage = ""; // A buffer for storage of an old message
+        this.newPlayerInput = "new-name"; // an input field for a new name
     }
 };
 
@@ -344,6 +341,25 @@ class Game {
         this.maps = new Maps(isClassic);
         this.scoreBoard = new ScoreBoard();
         this.message = new Message();
+    }
+
+    finishSettingNewName() {
+        // Try to save the new name.
+        let newName = $("#new-name").val();
+        if (!this.players.setNewName(newName, this.players.changeNameOfPlayer)) {
+            return; // If something went wrong, exit the function without doing anything.
+        };
+        // Restore the message about the player to move.
+        $(this.message.html).html(this.message.oldMessage);
+        this.updateMessage();
+        // Save the new name and restore current message
+        this.scoreBoard.display(status.players.name);
+        $("#new-player").hide();
+        // If the name of the current player is changed then make the player move by: passing the move to opponent and making the next move. 
+        if (this.players.changeNameOfPlayer == this.players.current) {
+            this.players.passMove();
+            makeNextMove();
+        }
     }
 
     gameResult() {
@@ -357,47 +373,18 @@ class Game {
         $(this.message.html).html(winMessage);
     }
 
-    // Functions allows to change a player's name.
-    chooseNewName(clickedScore) {
-        // Create short names for 3 objects.
-        let players = this.players;
-        let message = this.message;
-        let scoreBoard = this.scoreBoard;
-
-        // Save current message to restore it after setting a new name.
-        let messageBuffer = $(message.html).html();
-
-        // Find out which score was clicked and thus which name should be changed.
-        let elementId = $(clickedScore).attr("id");
-        let player = parseInt(elementId[elementId.length - 1]);
-        let inputHtml1 = `<span>Enter new name for Player ${player}: </span>`;
-        let inputHtml2 = `<input id="${IdEnum.inputFieldId}" type="text" value="AI (level 2)" size="12">`;
-        let inputHtml3 = `<button id="${IdEnum.okButtonId}">OK</button>`;
-        $(message.html).html(inputHtml1 + inputHtml2 + inputHtml3);
-
-        // When "OK" is clicked.
-        $(`#${IdEnum.okButtonId}`).click(function () {
-            // Try to save the new name.
-            let newName = $(`#${IdEnum.inputFieldId}`).val();
-            if (!status.players.setNewName(newName, player)) {
-                return; // If something went wrong, exit the function without doing anything.
-            };
-            // Restore the message about the player to move.
-            $(message.html).html(messageBuffer);
-            status.updateMessage();
-            // Save the new name and restore current message
-            scoreBoard.display(players.name);
-            // If the name of the current player is changed then make the player move by: passing the move to opponent and making the next move. 
-            if (player == players.current) {
-                //this.players.passMove();
-                players.passMove();
-                makeNextMove();
-            }
-        });
-    }
-
     moveAgain() {
         $(this.message.html).html(`Move of Player${this.players.current} (${this.players.getCurrentColor()}) again!`);
+    }
+
+    startSettingNewName(clickedScore) {
+        this.message.oldMessage = $(this.message.html).html();
+        let elementId = $(clickedScore).attr("id");
+        let player = parseInt(elementId[elementId.length - 1]);
+        $(this.message.html).html(`<span>Enter new name for Player ${player}: </span>`);
+        $("#new-name").val("AI (level 2)");
+        $("#new-player").show();
+        this.players.changeNameOfPlayer = player;
     }
 
     updateMessage() { // Function updates the message when current player (status.players.current) clicks on square, or a name is changed, or the game is over.
@@ -412,7 +399,7 @@ let status = {};
 
 $(document).ready(function () {
 
-    // React to clicking the "Restart" button (reset to original view).
+    // React to click of "Restart" button (reset to original view).
     $("#button-restart").click(function () {
         $("#play").hide();
         $("#welcome").show();
@@ -442,11 +429,6 @@ $(document).ready(function () {
 
     });
 
-    // React to clicking the score frame of player 1 or 2 to change the player's name.
-    $(".score-frame").click(function () {
-        status.chooseNewName(this);
-    });
-
     // React to click on a square (a human move).
     $(".square").click(function () {
 
@@ -474,6 +456,16 @@ $(document).ready(function () {
         makeNextMove(); // Pass move to the opposite player.
     });
 
+    // React to click of a score frame of player 1 or 2 to change the player's name.
+    $(".score-frame").click(function () {
+        status.startSettingNewName(this);
+    });
+
+    // React to click of "OK" button for a new name.
+    $("#name-ok").click(function () {
+        status.finishSettingNewName();
+    });
+    
 });
 
 

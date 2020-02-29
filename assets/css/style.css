@@ -231,6 +231,15 @@ Messages
     padding: 5px;
 }
 
+#new-player {
+    display: none;
+    clear: both;
+    margin: auto;
+    width: 350px;
+    text-align: center;
+    padding: 5px;
+}
+
 .font-black {
     color: black;
 }
