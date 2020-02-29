@@ -43,6 +43,28 @@ if (Object.freeze) {
 }
 
 
+function opponent(player) {
+    return player % 2 + 1;
+}
+
+// Function reads a coordinate ("inputAxis": "x" or "y") of a square from the square's list of classes ("inputClasses").
+function readCoordinates(inputClasses) {
+    let output = new Square(0, 0);
+    for (let i of inputClasses) {
+        if (i.length == 2) {
+            let inputAxis = i[0];
+            if (inputAxis == "x" || inputAxis == "y") {
+                let coordinate = parseInt(i[1]);
+                if (Number.isInteger(coordinate) && coordinate > -1 && coordinate < 8) {
+                    output[inputAxis] = coordinate;
+                }
+            }
+        }
+    }
+    return output;
+}
+
+
 class Players {
     constructor() {
         this.isHuman = [false, true, true]; //[unused, player 1 is human (true/false), player 2 is human (true/false)]
@@ -358,7 +380,7 @@ class Game {
         // If the name of the current player is changed then make the player move by: passing the move to opponent and making the next move. 
         if (this.players.changeNameOfPlayer == this.players.current) {
             this.players.passMove();
-            makeNextMove();
+            status.makeNextMove();
         }
     }
 
@@ -371,6 +393,29 @@ class Game {
             winMessage = `${this.players.name[2]} (${PlayerColorEnum.color[2]}) WON!!!`;
         }
         $(this.message.html).html(winMessage);
+    }
+
+    // Function passes the move to the opposite player, or gives the current player the right to move again, or finishes the game.
+    makeNextMove() {
+        
+        let nextPlayer = opponent(this.players.current);
+        console(`Next Player is #${nextPlayer}`);
+        let opponentPlayerCanMove = this.maps.canPlayerMove(nextPlayer);
+        if (opponentPlayerCanMove) { // if the opponent player can move
+            this.players.passMove();
+            this.updateMessage();
+            potentialAiMove();
+        } else {
+            console(`Next Player (#${nextPlayer}) cannot move`);
+            let nextPlayer = this.players.current;
+            let currentPlayerCanMove = this.maps.canPlayerMove(nextPlayer);
+            if (currentPlayerCanMove) { // if the opponent player cannot move but the current player can move again
+                this.moveAgain();
+                potentialAiMove();
+            } else {
+                this.message.gameResult();
+            } // if neither player can move then display the game result message
+        }
     }
 
     moveAgain() {
@@ -412,7 +457,7 @@ $(document).ready(function () {
         $("#welcome").hide();
         $("#play").show();
         status.scoreBoard.display(status.players.name);
-        makeNextMove();
+        status.makeNextMove();
         status.maps.updateGameBoard();
 
     });
@@ -424,7 +469,7 @@ $(document).ready(function () {
         $("#welcome").hide();
         $("#play").show();
         status.scoreBoard.display(status.players.name);
-        makeNextMove();
+        status.makeNextMove();
         status.maps.updateGameBoard();
 
     });
@@ -453,7 +498,7 @@ $(document).ready(function () {
         status.maps.current.updateMap(clickedSquare, status.players.current); // Update "status.maps.current".
         status.maps.permitted.updateMap(clickedSquare, status.players.current);  // Update "status.maps.permitted".
         status.maps.updateGameBoard(); // Update colors on the board according to the move.
-        makeNextMove(); // Pass move to the opposite player.
+        status.makeNextMove(); // Pass move to the opposite player.
     });
 
     // React to click of a score frame of player 1 or 2 to change the player's name.
@@ -465,7 +510,7 @@ $(document).ready(function () {
     $("#name-ok").click(function () {
         status.finishSettingNewName();
     });
-    
+
 });
 
 
@@ -513,47 +558,5 @@ function potentialAiMove() {
     status.maps.current.updateMap(clickedSquare, status.players.current);  // Update "status.maps.current".
     status.maps.permitted.updateMap(clickedSquare, status.players.current); // Update "status.maps.permitted".
     status.maps.updateGameBoard(); // Update colors on the board according to the move.
-    makeNextMove(); // Pass move to the opposite player.
-}
-
-
-// Function passes the move to the opposite player, or gives the current player the right to move again, or finishes the game.
-function makeNextMove() {
-    let nextPlayer = opponent(status.players.current);
-    let opponentPlayerCanMove = status.maps.canPlayerMove(nextPlayer);
-    if (opponentPlayerCanMove) { // if the opponent player can move
-        status.players.passMove();
-        status.updateMessage();
-        potentialAiMove();
-    } else {
-        let nextPlayer = status.players.current;
-        let currentPlayerCanMove = status.maps.canPlayerMove(nextPlayer);
-        if (currentPlayerCanMove) { // if the opponent player cannot move but the current player can move again
-            status.moveAgain();
-            potentialAiMove();
-        } else {
-            status.message.gameResult();
-        } // if neither player can move then display the game result message
-    }
-}
-
-function opponent(player) {
-    return player % 2 + 1;
-}
-
-// Function reads a coordinate ("inputAxis": "x" or "y") of a square from the square's list of classes ("inputClasses").
-function readCoordinates(inputClasses) {
-    let output = new Square(0, 0);
-    for (let i of inputClasses) {
-        if (i.length == 2) {
-            let inputAxis = i[0];
-            if (inputAxis == "x" || inputAxis == "y") {
-                let coordinate = parseInt(i[1]);
-                if (Number.isInteger(coordinate) && coordinate > -1 && coordinate < 8) {
-                    output[inputAxis] = coordinate;
-                }
-            }
-        }
-    }
-    return output;
+    status.makeNextMove(); // Pass move to the opposite player.
 }
