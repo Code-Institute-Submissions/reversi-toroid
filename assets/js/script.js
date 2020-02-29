@@ -380,7 +380,7 @@ class Game {
         // If the name of the current player is changed then make the player move by: passing the move to opponent and making the next move. 
         if (this.players.changeNameOfPlayer == this.players.current) {
             this.players.passMove();
-            status.makeNextMove();
+            makeNextMove();
         }
     }
 
@@ -396,28 +396,30 @@ class Game {
     }
 
     // Function passes the move to the opposite player, or gives the current player the right to move again, or finishes the game.
-    makeNextMove() {
+/*    makeNextMove() {
         
         let nextPlayer = opponent(this.players.current);
-        console(`Next Player is #${nextPlayer}`);
+        console.log(`Current player is ${this.players.current}, next Player is #${nextPlayer}`);
         let opponentPlayerCanMove = this.maps.canPlayerMove(nextPlayer);
+        console.log(`After canMove test. Result: ${opponentPlayerCanMove}. Current player is ${this.players.current}, next Player is #${nextPlayer}`);
         if (opponentPlayerCanMove) { // if the opponent player can move
+            console.log(`Opponent player ${nextPlayer} can move`);
             this.players.passMove();
             this.updateMessage();
             potentialAiMove();
         } else {
-            console(`Next Player (#${nextPlayer}) cannot move`);
+            console.log(`Current player is ${this.players.current}, next Player (#${nextPlayer}) cannot move`);
             let nextPlayer = this.players.current;
             let currentPlayerCanMove = this.maps.canPlayerMove(nextPlayer);
             if (currentPlayerCanMove) { // if the opponent player cannot move but the current player can move again
                 this.moveAgain();
                 potentialAiMove();
             } else {
-                this.message.gameResult();
+                this.gameResult();
             } // if neither player can move then display the game result message
         }
     }
-
+*/
     moveAgain() {
         $(this.message.html).html(`Move of Player${this.players.current} (${this.players.getCurrentColor()}) again!`);
     }
@@ -457,7 +459,7 @@ $(document).ready(function () {
         $("#welcome").hide();
         $("#play").show();
         status.scoreBoard.display(status.players.name);
-        status.makeNextMove();
+        makeNextMove();
         status.maps.updateGameBoard();
 
     });
@@ -469,7 +471,7 @@ $(document).ready(function () {
         $("#welcome").hide();
         $("#play").show();
         status.scoreBoard.display(status.players.name);
-        status.makeNextMove();
+        makeNextMove();
         status.maps.updateGameBoard();
 
     });
@@ -498,7 +500,7 @@ $(document).ready(function () {
         status.maps.current.updateMap(clickedSquare, status.players.current); // Update "status.maps.current".
         status.maps.permitted.updateMap(clickedSquare, status.players.current);  // Update "status.maps.permitted".
         status.maps.updateGameBoard(); // Update colors on the board according to the move.
-        status.makeNextMove(); // Pass move to the opposite player.
+        makeNextMove(); // Pass move to the opposite player.
     });
 
     // React to click of a score frame of player 1 or 2 to change the player's name.
@@ -513,6 +515,25 @@ $(document).ready(function () {
 
 });
 
+// Function passes the move to the opposite player, or gives the current player the right to move again, or finishes the game.
+function makeNextMove() {
+    let nextPlayer = opponent(status.players.current);
+    let opponentPlayerCanMove = status.maps.canPlayerMove(nextPlayer);
+    if (opponentPlayerCanMove) { // if the opponent player can move
+        status.players.passMove();
+        status.updateMessage();
+        potentialAiMove();
+    } else {
+        let nextPlayer = status.players.current;
+        let currentPlayerCanMove = status.maps.canPlayerMove(nextPlayer);
+        if (currentPlayerCanMove) { // if the opponent player cannot move but the current player can move again
+            status.moveAgain();
+            potentialAiMove();
+        } else {
+            status.gameResult();
+        } // if neither player can move then display the game result message
+    }
+}
 
 // Function checks if the next player is AI, and if so makes it move.
 function potentialAiMove() {
@@ -558,5 +579,5 @@ function potentialAiMove() {
     status.maps.current.updateMap(clickedSquare, status.players.current);  // Update "status.maps.current".
     status.maps.permitted.updateMap(clickedSquare, status.players.current); // Update "status.maps.permitted".
     status.maps.updateGameBoard(); // Update colors on the board according to the move.
-    status.makeNextMove(); // Pass move to the opposite player.
+    makeNextMove(); // Pass move to the opposite player.
 }
