@@ -336,12 +336,7 @@ class Message {
     constructor() {
         this.html = "#message-content"; //selector for the message section
     }
-
-    moveAgain() {
-        $(this.html).html(`Move of Player${status.players.current} (${status.players.getCurrentColor()}) again!`);
-    }
 };
-
 
 class Game {
     constructor(isClassic) {
@@ -349,13 +344,6 @@ class Game {
         this.maps = new Maps(isClassic);
         this.scoreBoard = new ScoreBoard();
         this.message = new Message();
-    }
-
-    updateMessage() { // Function updates the message when current player (status.players.current) clicks on square, or a name is changed, or the game is over.
-        $(this.message.html).html(`Move of ${this.players.name[this.players.current]} (${this.players.getCurrentColor()})`);
-        $(this.message.html).removeClass("font-white");
-        $(this.message.html).removeClass("font-black");
-        $(this.message.html).addClass("font-" + this.players.getCurrentColor());
     }
 
     gameResult() {
@@ -408,6 +396,16 @@ class Game {
         });
     }
 
+    moveAgain() {
+        $(this.message.html).html(`Move of Player${this.players.current} (${this.players.getCurrentColor()}) again!`);
+    }
+
+    updateMessage() { // Function updates the message when current player (status.players.current) clicks on square, or a name is changed, or the game is over.
+        $(this.message.html).html(`Move of ${this.players.name[this.players.current]} (${this.players.getCurrentColor()})`);
+        $(this.message.html).removeClass("font-white");
+        $(this.message.html).removeClass("font-black");
+        $(this.message.html).addClass("font-" + this.players.getCurrentColor());
+    }
 }
 
 let status = {};
@@ -539,7 +537,7 @@ function makeNextMove() {
         let nextPlayer = status.players.current;
         let currentPlayerCanMove = status.maps.canPlayerMove(nextPlayer);
         if (currentPlayerCanMove) { // if the opponent player cannot move but the current player can move again
-            status.message.moveAgain();
+            status.moveAgain();
             potentialAiMove();
         } else {
             status.message.gameResult();
