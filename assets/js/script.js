@@ -638,8 +638,11 @@ class Game {
         let elementId = $(clickedScore).attr("id");
         let player = parseInt(elementId[elementId.length - 1]);
         $(this.message.html).html(`<span>Enter new name for Player ${player}: </span>`);
+        $(this.message.html).removeClass("font-white");
+        $(this.message.html).addClass("font-black");
         $("#new-name").val("AI (level 2)");
         $("#new-player").show();
+
         this.players.changeNameOfPlayer = player;
     }
 

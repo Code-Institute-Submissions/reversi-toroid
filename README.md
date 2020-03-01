@@ -108,10 +108,17 @@ Name change (part 4 - trying to change to an "AI" name with a level not yet supp
 * Click one of the score frame like in "Name change (part 1)" (see above).
 * Enter "AI (level 8)" (instead of 8, any number higher than 2 can be used).
 * Click "OK" and verify that a warning alert is displayed.
-* Close the alert and verify that nothing changed in the score board or message board.
+* Close the alert and verify that the new name input field disappeared while the "Move of ..." was restored.
 
+Name change (part 5 - trying to change to an "AI" name when the opponent is already AI):
+* Change the opponet player to AI (see "Name chnage (part 3)").
+* Click the "human" score frame like in "Name change (part 1)" (see above).
+* Click "OK" to choose "AI (level 2)" and verify that a warning alert is displayed.
+* Close the alert and verify that the new name input field disappeared while the "Move of ..." was restored.
 
-The name change feature was tested for setting a new human player name and for choosing AI with level 1 or level 2.\
+Game play:
+* Make a valid move (click an unoccupied "green" square that would result in flipping the opponents' squares) and verify that the clicked sqaure's color is changed to the current player's color, the appropriate opponent's squares are flipped, and the scores are updated.
+* Make a not valid move
 The game was extensively played both "human vs. human" and "human vs. computer".
 
 ## Deployment
