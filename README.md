@@ -55,6 +55,7 @@ Help page contains:
 1. basic information about the game,
 2. rules of the game,
 3. instructions how to play.
+
 A user can use a menu on top to jump to the section of interest.
 
 ### Features Left to Implement:
@@ -72,12 +73,44 @@ The site was designed to be used mainly on mobile phones with a small display.\
 It was tested on a laptop Lenovo ThinkPad (with different window widths from 330px to 1466px) and a mobile phone Motorola XT1941 4.
 
 Help button:
-* Click the Help button on the initial page. The Help page is open in a new tab.
+* Click the Help button on the initial page and verify that the Help page opens in a new tab.
 
 Help page menu:
-* Click "About", "RUles", or "How to play" menu items. The text is moved so that the corresponding section get to the top of the page.
-Both menu buttons were tested.\
-Both start buttons were tested.\
+* Click "About", "Rules", or "How to play" menu items and verify that the text moves so that the corresponding section gets to the top of the page.
+* Click a link to Wikipedia page about Reversi and verify that the Wikipedia page opens in a new tab.
+
+Restart button:
+* Click the Restart button on the initial page and verify that nothing happens.
+* Click the Restart button when a game is played (at any stage) and verify that the page returns to the initial ("Welcome") state.
+
+"Start classic Reversi game" button:
+* Click the button and verify that the welcome message is hidden while a header "Classic Reversi", the game board with the initial position, the score board with 2 score frames (each dispalying player's score and name, as well as a hint for changing a player's name), and a message "Move of Player1 (black)" are shown.
+
+"Start toroid Reversi game" button:
+* The same as for the "Start classic Reversi game" button but verify that the displayed game header is "Reversi-on-Toroid".
+
+Name change (part 1 - changing to a "human" name):
+* Click one of the score frame (left for "black" player or right for "white" one, below a case of "black" player with the current name Player1 is described) and verify that a message "Enter new name for Player1" is displayed and an input field with a default hint "AI (level 2)" appears together with "OK" button.
+* Enter a new name (below a case of a name "Name Human" is described).
+* Click "OK" and verify that the "black" player's name is changed to "Name Human".
+
+Name change (part 2 - trying to change to a "human" name that is too long - longer than 12 symbols):
+* Click one of the score frame like in "Name change (part 1)" (see above).
+* Enter a new name which contains more than 12 symbols (below a case of a name "12345678901234567890" is described).
+* Click "OK" and verify that a warning alert is displayed.
+* Close the alert and verify that the "black" player's name is changed to "123456789012" (truncated to 12 symbols).
+
+Name change (part 3 - changing to an "AI" name):
+* Click one of the score frame like in "Name change (part 1)" (see above).
+* Click "OK" and verify that the "black" player's name is changed to "AI (level 2)" and the AI made its move (a new black square appeared on the game board, and white squares were flipped and the scores were updated, accordingly) and that the message "Move of Player2 (white)" is shown.
+
+Name change (part 4 - trying to change to an "AI" name with a level not yet supported, higher than 2):
+* Click one of the score frame like in "Name change (part 1)" (see above).
+* Enter "AI (level 8)" (instead of 8, any number higher than 2 can be used).
+* Click "OK" and verify that a warning alert is displayed.
+* Close the alert and verify that nothing changed in the score board or message board.
+
+
 The name change feature was tested for setting a new human player name and for choosing AI with level 1 or level 2.\
 The game was extensively played both "human vs. human" and "human vs. computer".
 

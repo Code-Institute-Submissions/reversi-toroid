@@ -367,7 +367,8 @@ class Players {
      * @param {number} player The player whose name needs to be changed.
      * @return {boolean} True if everything is OK, false if the new name was not valid.
      */
-    setNewName(name, player) {
+    setNewName(name) {
+        let player = this.changeNameOfPlayer;
         // Analyzes the entered new name.
         let newNameStartsWith = name.slice(0, 10);
         // Checks whether the new name starts as a correct "AI-name": "AI (level ".
@@ -396,8 +397,11 @@ class Players {
         } else { // If the new name is a "human" name...
             this.isHuman[player] = true;
         }
-        // Sets the new name.
-        this.name[player] = name;
+        // Sets the new name (maximal length is 12 symbols, the longer names are truncated).
+        if (name.length > 12) {
+            alert("Names may not be longer than 12 symbols.");
+        }
+        this.name[player] = name.slice(0, 12);
         // Returns that everything is OK.
         return true;
     }
@@ -509,10 +513,7 @@ class Game {
     finishSettingNewName() {
         // Tries to set the new name.
         let newName = $("#new-name").val();
-        // If something went wrong, exits the function without doing anything.
-        if (!this.players.setNewName(newName, this.players.changeNameOfPlayer)) {
-            return;
-        };
+        this.players.setNewName(newName);
         // Restores the message about the player to move.
         $(this.message.html).html(this.message.oldMessage);
         this.updateMessage();
