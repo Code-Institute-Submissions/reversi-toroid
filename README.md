@@ -117,9 +117,13 @@ Name change (part 5 - trying to change to an "AI" name when the opponent is alre
 * Close the alert and verify that the new name input field disappeared while the "Move of ..." was restored.
 
 Game play:
-* Make a valid move (click an unoccupied "green" square that would result in flipping the opponents' squares) and verify that the clicked sqaure's color is changed to the current player's color, the appropriate opponent's squares are flipped, and the scores are updated.
-* Make a not valid move
-The game was extensively played both "human vs. human" and "human vs. computer".
+* Make a valid move (click an unoccupied "green" square that according to the rules must result in flipping the opponents' squares) and verify that the clicked sqaure's color is changed to the current player's color, the appropriate opponent's squares are flipped, and the scores are updated.
+* Make a not valid move (click an occupied "black" or "white" square) and verify that a warning alert is displayed.
+* Make a not valid move (click an unoccupied "green" square that according to the rules cannot result in flipping of any opponents' squares) and verify that a warning alert is displayed.
+* Verify that if a player cannot move (below a case of "black" player with the current name Player1 is described) then a message "Move of Player1 (black) again!" is displayed.
+* Verify that if both players cannot move then a win/draw (depending on the current score) message is displayed.
+
+The game was extensively played both "human vs. human" and "human vs. computer" by several users.
 
 ## Deployment
 The project is deployed to GitHub Pages (built from the master branch):\

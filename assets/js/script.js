@@ -580,7 +580,8 @@ class Game {
      * Displays a message that the current player can move again.
      */
     moveAgain() {
-        $(this.message.html).html(`Move of Player${this.players.current} (${this.players.getCurrentColor()}) again!`);
+        //$(this.message.html).html(`Move of Player${this.players.current} (${this.players.getCurrentColor()}) again!`);
+        $(this.message.html).html(`Move of ${this.players.name[this.players.current]} (${this.players.getCurrentColor()}) again!`);
     }
 
     /**
