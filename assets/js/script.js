@@ -116,13 +116,7 @@ class Square {
     classicShiftBy(shift) {
         this.y = this.y + shift.dy;
         this.x = this.x + shift.dx;
-        if (this.y < 0 || this.y > 7 || this.x < 0 || this.x > 7) {
-            // Return a negative flag (the claculated square is out of board).
-            return false;
-        } else {
-            // Return a positive flag (the claculated square is within board).
-            return true;
-        }
+        return !(this.y < 0 || this.y > 7 || this.x < 0 || this.x > 7)
     }
 
     /**
@@ -384,7 +378,7 @@ class Players {
                 alert("At present there MUST be at least 1 HUMAN player");
                 return false;
             } else {
-                let newAiLevel = name.charCodeAt(10) - 48;
+                let newAiLevel = name.charCodeAt(10) - 48; // The 11th character of "AI"-name must be the AI level (1 or 2).
                 // Displays an alert if the chosen AI level is not supported yet.
                 if (newAiLevel < AiLevelEnum.MIN || newAiLevel > AiLevelEnum.MAX) {
                     alert(`At present minimal AI level is ${AiLevelEnum.MIN} and maximal is ${AiLevelEnum.MAX}. While you try to set it to ${newAiLevel}.`);
@@ -431,22 +425,6 @@ class ScoreBoard {
     }
 
     /**
-     * Analylizes players' score and returns true if Player 1 wins.
-     * @return {boolean} True if Player 1 wins, false otherwise.
-     */
-    player1Wins() {
-        return this.score[1] > this.score[2];
-    }
-
-    /**
-     * Analylizes players' score and returns true if Player 2 wins.
-     * @return {boolean} True if Player 2 wins, false otherwise.
-     */
-    player2Wins() {
-        return this.score[1] < this.score[2];
-    }
-
-    /**
      * Updates the current score.
      * @param {number} change The gain of the current player (and loss of the opponent).
      * @param {number} player The current player's number.
@@ -462,6 +440,21 @@ class ScoreBoard {
                 this.score[1] -= change;
                 break;
         }
+    }
+
+    /**
+     * Analylizes players' score and in case of a victory returns the victorious player's number.
+     * @return {number} 0 for a draw, 1 if Player 1 wins, 2 if Player 2 wins.
+     */
+    victoryOfPlayer() {
+        let victoriuosPlayer = 0;
+        if (this.score[1] > this.score[2]) {
+            victoriuosPlayer = 1;
+        }
+        if (this.score[1] < this.score[2]) {
+            victoriuosPlayer = 2;
+        }
+        return victoriuosPlayer;
     }
 };
 
@@ -499,12 +492,12 @@ class Game {
      * @param {number} scoreChange Gain of the current player (and loss of the opponent).
      */
     finishMove(square, scoreChange) {
-        this.scoreBoard.updateScore(scoreChange, this.players.current); // Updates the score.
-        this.scoreBoard.displayScore(this.players.name); // Displays the score.
-        this.maps.current.updateMap(square, this.players.current); // Updates "current" map.
-        this.maps.permitted.updateMap(square, this.players.current);  // Updates "permitted" map.
-        this.maps.updateGameBoard(); // Updates colors on the board according to "current" map.
-        this.makeNextMove(); // Passes move to the opponent player.
+        this.scoreBoard.updateScore(scoreChange, this.players.current);
+        this.scoreBoard.displayScore(this.players.name);
+        this.maps.current.updateMap(square, this.players.current);
+        this.maps.permitted.updateMap(square, this.players.current);
+        this.maps.updateGameBoard();
+        this.makeNextMove(); //
     }
 
     /**
@@ -532,11 +525,9 @@ class Game {
      */
     gameResult() {
         let winMessage = "DRAW";
-        if (this.scoreBoard.player1Wins()) {
-            winMessage = `${this.players.name[1]} (${PlayerColorEnum.color[1]}) WON!!!`;
-        }
-        if (this.scoreBoard.player2Wins()) {
-            winMessage = `${this.players.name[2]} (${PlayerColorEnum.color[2]}) WON!!!`;
+        let victoryOf = this.scoreBoard.victoryOfPlayer();
+        if (victoryOf > 0) {
+            winMessage = `${this.players.name[victoryOf]} (${PlayerColorEnum.color[victoryOf]}) WON!!!`;
         }
         $(this.message.html).html(winMessage);
     }

@@ -16,7 +16,7 @@ This is a site with a game almost identical to the classic [Reversi game]( https
 One can play either a classic version of Reversi or the Reversi-on-Toroid version.
 In Reversi-on-Toroid, a toroid is used as a board instead of the standard square board. This means that:
 1. the rightmost and leftmost verticals are treated as neighbours,
-2. the top and bottom horizontals are treated as neighbours.\
+2. the top and bottom horizontals are treated as neighbours.
 
 There are 2 game modes:
 * A simple game mode: human vs. human. To be used, e.g., as a board game on the same device during travel.
@@ -24,7 +24,7 @@ There are 2 game modes:
 Strength of AI can be chosen from 1 (random moves of AI) up to 2 (AI randomly selected among all valid moves with maximal possible gain after 1 move).
 
 ## UX
-The site was supposed to be used by me or my friends. That is why its design is minimal and includes only essential feratures.\
+The site was supposed to be used by me or my friends. That is why its design is minimal and includes only essential feratures.
 ### User stories:
 * As a player, I want to click an always visible "menu" button, so that I can come back to the initial page.
 * As a player, I want to click an always visible "menu" button, so that I can get help.
@@ -49,7 +49,7 @@ Home page includes:
 4. a game board (appears when a game starts) - allows users to make moves by clicking on empty ("green") squares,
 5. a score board (appears when a game starts) with players' names and current scores,
 6. an input field for a new name (appears if a players' score is clicked) - allows changing the player's name (type a new name and press "OK") of to select AI instead of human (press "OK" to select a default AI of level 2, or before pressing "OK" change the level to 1 in the input field to have a weaker computer opponent),
-7. a message board - where the game messages are displayed.\
+7. a message board - where the game messages are displayed.
 
 Help page contains:
 1. basic information about the game,
@@ -62,7 +62,8 @@ A user can use a menu on top to jump to the section of interest.
 1. In the future, it would be interesting to improve the AI (to make it maximize the gain after 2 moves, 3 moves, etc.).
 2. For research purposes, one can add a "computer vs. computer" mode to compare different game algorhythms, and maybe for to develop new algorhythms.
 3. For human users, "Top Scores" list can be added.
-4. Design of the site can be made more artistic. Some animation and sound effects can be added.
+4. Users may choose the board size.
+5. Design of the site can be made more artistic. Some animation and sound effects can be added.
 
 ## Technologies Used
 The project was written with HTML5, CSS3 and Javascript.\
