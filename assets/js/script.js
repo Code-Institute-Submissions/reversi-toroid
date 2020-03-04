@@ -661,6 +661,11 @@ $(document).ready(function () {
         $("#welcome").show();
     });
 
+    // Reacts to click of "Help" button (opens a Help page in a new tab).
+    $("#button-help").click(function () {
+        window.open("help.html", "_blank");
+    });
+
     // Reacts to choosing the "classic" version of Reversi.
     $("#start-classic").click(function () {
         status = new Game(true);

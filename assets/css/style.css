@@ -16,8 +16,10 @@ header {
     padding-bottom: 30px;
 }
 
-#menu-container button {
+#menu-container button, button > a {
     display: inline-block;
+    margin: 0;
+    padding: 0;
     font-size: 25px;
     font-weight: 300;
     text-decoration: none;
@@ -255,7 +257,7 @@ Footer
 footer {
 	position: fixed;
     bottom: 0;
-    width: 98%; < d
+    width: 98%;
 }
 
 footer > p {
@@ -314,18 +316,18 @@ li {
 
 .red {
     color: red;
-    weight: 900;
+    font-weight: 700;
     font-size: 110%;
 }
 
 .green {
     color: green;
-    weight: 900;
+    font-weight: 700;
     font-size: 110%;
 }
 
 .note {
-    weight: 900;
+    font-weight: 700;
     font-size: 120%;
     font-style: italic;
     background: orange;
