@@ -8,6 +8,7 @@
 
 https://pavzel.github.io/reversi-toroid/
 
+
 ## Overview
 The main purpose of this project (Milestone Project #2) was to build an interactive front-end site.
 The site demonstrates some of my skills in Javascript at the end of February 2020.
@@ -23,16 +24,21 @@ There are 2 game modes:
 * An advanced mode: human vs. computer ("AI"). To be used by 1 human player.
 Strength of AI can be chosen from 1 (random moves of AI) up to 2 (AI randomly selected among all valid moves with maximal possible gain after 1 move).
 
+
 ## UX
 The site was supposed to be used by me or my friends. That is why its design is minimal and includes only essential feratures.
 ### User stories:
-* As a player, I want to click an always visible "menu" button, so that I can come back to the initial page.
+#### Always visible "Navigation menu"
+* As a player, I want to click an always visible "menu" button, so that I can come back to the landing page.
 * As a player, I want to click an always visible "menu" button, so that I can get help.
-* As a player, I want to click a button on the initial page, so that I can start a new game on classic board.
-* As a player, I want to click a button on the initial page, so that I can start a new game on toroid board.
+* As a player, I want to click a button on the landing page, so that I can start a new game on classic board.
+#### "Game start" buttons on the landing page
+* As a player, I want to click a button on the landing page, so that I can start a new game on toroid board.
+#### Choosing a human or a computer player, and changing the human players' names
 * As a player, I want to click a player's score frame (that shows a hint), so that I can choose a new name instead of the default one for one of the two players.
 * As a player, I want to choose an "AI-like" new name (that is displayed by default) when I click a player's score frame, so that I can choose a computer (AI) opponent instead of a human one.
 * As a player, I want to get a warning message if the "AI" name is not valid, so that I can correct a mistake.
+#### Playing a game
 * As a player, I want to see a message saying which player must move, so that I (or my human opponent) can make a move.
 * As a player, I want to click a square on the game board, so that I can make a move.
 * As a player, I want to get a warning message if my move is not valid, so that I can correct a mistake.
@@ -65,23 +71,25 @@ A user can use a menu on top to jump to the section of interest.
 4. Users may choose the board size.
 5. Design of the site can be made more artistic. Some animation and sound effects can be added.
 
+
 ## Technologies Used
 The project was written with HTML5, CSS3 and Javascript.\
 [jQuery](https://jquery.com/) was used to simplify event handling and HTML manipulation.
+
 
 ## Testing
 The site was designed to be used mainly on mobile phones with a small display.\
 It was tested on a laptop Lenovo ThinkPad (with different window widths from 330px to 1466px) and a mobile phone Motorola XT1941 4.
 
 Help button:
-* Click the Help button on the initial page and verify that the Help page opens in a new tab.
+* Click the Help button on the landing page and verify that the Help page opens in a new tab.
 
 Help page menu:
 * Click "About", "Rules", or "How to play" menu items and verify that the text moves so that the corresponding section gets to the top of the page.
 * Click a link to Wikipedia page about Reversi and verify that the Wikipedia page opens in a new tab.
 
 Restart button:
-* Click the Restart button on the initial page and verify that nothing happens.
+* Click the Restart button on the landing page and verify that nothing happens.
 * Click the Restart button when a game is played (at any stage) and verify that the page returns to the initial ("Welcome") state.
 
 "Start classic Reversi game" button:
@@ -130,7 +138,9 @@ The game was extensively played both "human vs. human" and "human vs. computer" 
 The project is deployed to GitHub Pages (built from the master branch):\
 https://pavzel.github.io/reversi-toroid/ \
 The source files are publicly accessible:\
-https://github.com/pavzel/reversi-toroid
+https://github.com/pavzel/reversi-toroid\
+To run locally, you can clone this repository: paste `git clone https://github.com/pavzel/reversi-toroid.git` into your terminal. To cut ties with this GitHub repository, type `git remote rm origin` into the terminal.
+
 
 ## Credits
 The project idea was suggested by Code Institute.\
